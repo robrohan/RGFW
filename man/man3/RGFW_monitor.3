@@ -1,0 +1,53 @@
+.TH "RGFW_monitor" 3 "Fri Jul 26 2024" "RGFW" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+RGFW_monitor
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <RGFW\&.h>\fP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBname\fP [128]"
+.br
+.ti -1c
+.RI "\fBRGFW_rect\fP \fBrect\fP"
+.br
+.ti -1c
+.RI "float \fBscaleX\fP"
+.br
+.ti -1c
+.RI "float \fBscaleY\fP"
+.br
+.ti -1c
+.RI "float \fBphysW\fP"
+.br
+.ti -1c
+.RI "float \fBphysH\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+structure for monitor data 
+.SH "Member Data Documentation"
+.PP 
+.SS "char RGFW_monitor::name[128]"
+monitor name 
+.SS "float RGFW_monitor::physH"
+monitor physical size 
+.SS "float RGFW_monitor::physW"
+
+.SS "\fBRGFW_rect\fP RGFW_monitor::rect"
+monitor Workarea 
+.SS "float RGFW_monitor::scaleX"
+
+.SS "float RGFW_monitor::scaleY"
+monitor content scale 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for RGFW from the source code\&.

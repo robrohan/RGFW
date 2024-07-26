@@ -134,8 +134,7 @@ int main() {
 ```
 
 # Documentation
-There is a lot of in-header-documentation, but more documentation can be found [here](https://RSGL.github.io/RGFW)
-
+There is a lot of in-header-documentation, but more documentation can be found at https://colleagueriley.github.io/RGFW/docs/index.html
 If you wish to build the documentation yourself, there is also a Doxygen file attached.
 
 # Bindings
@@ -214,41 +213,7 @@ It uses RGFW for it's examples
   If you want to contribute to RGFW but don't know what to contribute, you can check the `TODO` file.
 
 # RGFW vs GLFW
-RGFW is more portable, in part because single-header library. It does not force you to use callbacks and focuses on trying to be straightforward. RGFW tries to work with the programmer rather than forcing the programmer to work around it. It also uses far less RAM and storage than GLFW.
-
-RGFW allows you to use callbacks optionally if you prefer that method.
-
-| Feature | RGFW | GLFW |
-| --- | --- | --- |
-| .o size  (avg) | 46kb  | 280kb |
-| .so size (avg) | 94kb | 433kb |
-| .h size | 224.1kb  | 256kb |
-| memory ussage (linux) | ~40 Mib | 55.9 Mib |
-| --- | --- | --- |
-| fps counter | ✓  | X |
-| multi-threading | ✓  | X |
-| drag and drop (input) | ✓  | ✓ |
-| drag and drop (output) | X | X |
-| joystick input | ~ (no macos support) | ✓ |
-| live window struct | ✓  | X |
-| event pipeline (dynamic) | ✓  | X |
-| multi-buffering | ✓  | ✓ |
-| set icon based on bitmap | ✓  | ✓ |
-| clipboard I/O | ✓  | ✓ |
-| multi-window support | ✓  | ✓ |
-| hide/show mouse | ✓  | ✓ |
-| no resize window | ✓  | ✓ |
-| no border window | ✓  | X |
-| transparent window | ✓  | ✓ |
-| key strings | ✓  | ✓ |
-| custom cursors | ✓  | ✓ |
-| wayland | ~ (backwards comp.)  | ✓ |
-| OpenGL | ✓  | ✓ |
-| Vulkan | ✓  | ✓ |
-| OpenGL ES | ✓  | ✓ |
-| EGL | ✓  | ✓ |
-| OSMesa | ✓  | ✓ |
-| Direct X | ✓  | X |
+A comparison of RGFW and GLFW can be found at [this gist](https://gist.github.com/ColleagueRiley/dd9a5807a353cd7e6b73d230a8c841de)
 
 # License
 RGFW uses the Zlib/libPNG license, this means you can use RGFW freely as long as you do not claim you wrote this software, mark altered versions as such and keep the license included with the header.
@@ -256,7 +221,7 @@ RGFW uses the Zlib/libPNG license, this means you can use RGFW freely as long as
 ```
 Permission is granted to anyone to use this software for any purpose,
 including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
+freely, subject to the following restrictions:fdocu
   
 1. The origin of this software must not be misrepresented; you must not
    claim that you wrote the original software. If you use this software
