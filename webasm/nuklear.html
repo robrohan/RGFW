@@ -16,7 +16,6 @@
     }
   </style>
 
-
   <style>
     #log {
       white-space: pre-wrap;
@@ -53,37 +52,18 @@
     <a href="../index.html"> <img src="../logo.png" alt="RGFW logo"> </a>
     <h1>RGFW WebASM Example &nbsp;&nbsp;&nbsp;&nbsp;
   
-    <a href="https://github.com/ColleagueRiley/RGFW/blob/main/examples/callbacks/callbacks.c">Source Code</h4> </a>
+    <a href="https://github.com/ColleagueRiley/nuklear_rgfw/blob/main/rgfw_opengl2/main.c">Source Code</h4> </a>
 
     </h1>
   </div>
+
 
   <div style="text-align:center;">
     <canvas id="canvas">
     </canvas>
   </div>
 
-
-  <script async src="../examples/callbacks/callbacks.js"> </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function (event) {
-      if (document.querySelector('Component') == null) {
-        var script = document.querySelector('script[src="../examples/callbacks/callbacks.js"]')
-        document.head.removeChild(script)
-      }
-    }); 
-  </script>
-
-  <script async src="../callbacks.js"> </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function (event) {
-      if (document.querySelector('Component') == null) {
-        var script = document.querySelector('script[src="../callbacks.js"]')
-        document.head.removeChild(script)
-      }
-    }); 
-  </script>
-
+  <script src="rgfw-nuklear.js"></script>
   <div id="log"></div>
 
   <script>

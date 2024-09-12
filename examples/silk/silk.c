@@ -1,18 +1,27 @@
+
+#define SILK_PIXELBUFFER_WIDTH 500
+#define SILK_PIXELBUFFER_HEIGHT 500
+#define SILK_IMPLEMENTATION
+#include "silk.h"
+
+#include <stdint.h>
+
+typedef int8_t      i8;
+typedef uint16_t   u16;
+typedef int16_t    i16;
+typedef uint64_t   u64;
+typedef int64_t    i64;
+
+
+#define u8 u8
 #define RGFW_IMPLEMENTATION
 #define RGFW_BUFFER
 
 #include "RGFW.h"
 
-#define SILK_PIXELBUFFER_WIDTH 500
-#define SILK_PIXELBUFFER_HEIGHT 500
-
-#define SILK_IMPLEMENTATION
-#include "silk.h"
-
 int main(void) {
     RGFW_setBufferSize(RGFW_AREA(500, 500));
     RGFW_window* win = RGFW_createWindow("Basic buffer example", RGFW_RECT(0, 0, 500, 500), RGFW_CENTER | RGFW_TRANSPARENT_WINDOW | RGFW_NO_RESIZE);
-    win->fpsCap = 60;
 
     u32 angle = 0;
 
@@ -59,6 +68,7 @@ int main(void) {
         angle++;
 
         RGFW_window_swapBuffers(win);
+        RGFW_window_checkFPS(win, 60);
     }
 
     RGFW_window_close(win);

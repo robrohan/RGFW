@@ -26,7 +26,7 @@ void refreshCallback(RGFW_window* win) {
 
 RGFW_window* win2;
 
-int main(void) {   
+int main(void) {
     RGFW_window* win = RGFW_createWindow("RGFW Example Window", RGFW_RECT(500, 500, 500, 500), RGFW_ALLOW_DND | RGFW_CENTER);
     RGFW_window_makeCurrent(win);
     
@@ -34,7 +34,6 @@ int main(void) {
 
     RGFW_setWindowRefreshCallback(refreshCallback);
 
-    RGFW_window_swapInterval(win, 1);
     #ifdef RGFW_MACOS
     win2 = RGFW_createWindow("subwindow", RGFW_RECT(200, 200, 200, 200), 0);
     #endif
@@ -42,14 +41,12 @@ int main(void) {
 
     unsigned char i;
 
-    #ifndef RGFW_VULKAN
-    glEnable(GL_BLEND);
-    #endif
-
     glEnable(GL_BLEND);             
     glClearColor(0, 0, 0, 0);
 
     RGFW_window_setMouseStandard(win, RGFW_MOUSE_RESIZE_NESW);
+    
+    u32 fps = 0;
 
     while (running && !RGFW_isPressed(win, RGFW_Escape)) {   
         #ifdef __APPLE__
@@ -77,7 +74,7 @@ int main(void) {
             else if (RGFW_isPressed(win, RGFW_Down))
                 RGFW_writeClipboard("DOWN", 4);
             else if (RGFW_isPressed(win, RGFW_Space))
-                printf("fps : %i\n", win->event.fps);
+                printf("fps : %i\n", fps);
             else if (RGFW_isPressed(win, RGFW_w))
                 RGFW_window_setMouseDefault(win);
             else if (RGFW_isPressed(win, RGFW_q))
@@ -99,6 +96,7 @@ int main(void) {
         }
 
         drawLoop(win);
+        fps = RGFW_window_checkFPS(win, 0);
     }
 
     running2 = 0;
@@ -142,7 +140,8 @@ void* loop2(void* args) {
     #endif
 
     while (running2) {
-        /* 
+//printf("hello\n");
+		/* 
             not using a while loop here because there is only one event I care about 
         */
         #ifndef __APPLE__
@@ -174,3 +173,4 @@ void* loop2(void* args) {
     return NULL;
     #endif
 }
+

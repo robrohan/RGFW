@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['inline_0',['inline',['../RGFW_8h.html#a00d24c7231be28dbaf71f5408f30e44c',1,'RGFW.h']]]
+  ['_5f_5fuse_5fposix199309_0',['__USE_POSIX199309',['../RGFW_8h.html#a4ad9e77eef1d695b1a5cca6a76116bcf',1,'RGFW.h']]]
 ];

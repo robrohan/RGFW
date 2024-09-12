@@ -1,4 +1,4 @@
-.TH "RGFW_Event" 3 "Fri Jul 26 2024" "RGFW" \" -*- nroff -*-
+.TH "RGFW_Event" 3 "Thu Sep 12 2024" "RGFW" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -27,16 +27,10 @@ RGFW_Event
 .RI "\fBRGFW_point\fP \fBpoint\fP"
 .br
 .ti -1c
-.RI "\fBu32\fP \fBfps\fP"
-.br
-.ti -1c
-.RI "\fBu64\fP \fBframeTime\fP"
-.br
-.ti -1c
-.RI "\fBu64\fP \fBframeTime2\fP"
-.br
-.ti -1c
 .RI "\fBu8\fP \fBkeyCode\fP"
+.br
+.ti -1c
+.RI "\fBb8\fP \fBrepeat\fP"
 .br
 .ti -1c
 .RI "\fBb8\fP \fBinFocus\fP"
@@ -45,19 +39,25 @@ RGFW_Event
 .RI "\fBu8\fP \fBlockState\fP"
 .br
 .ti -1c
-.RI "\fBu16\fP \fBjoystick\fP"
-.br
-.ti -1c
 .RI "\fBu8\fP \fBbutton\fP"
 .br
 .ti -1c
 .RI "double \fBscroll\fP"
 .br
 .ti -1c
+.RI "\fBu16\fP \fBjoystick\fP"
+.br
+.ti -1c
 .RI "\fBu8\fP \fBaxisesCount\fP"
 .br
 .ti -1c
 .RI "\fBRGFW_point\fP \fBaxis\fP [2]"
+.br
+.ti -1c
+.RI "\fBu64\fP \fBframeTime\fP"
+.br
+.ti -1c
+.RI "\fBu64\fP \fBframeTime2\fP"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -68,15 +68,13 @@ Event structure for checking/getting events
 .SS "\fBRGFW_point\fP RGFW_Event::axis[2]"
 x, y of axises (-100 to 100) 
 .SS "\fBu8\fP RGFW_Event::axisesCount"
-number of axises 
+which joystick this event applies to (if applicable to any) number of axises 
 .SS "\fBu8\fP RGFW_Event::button"
-which joystick this event applies to (if applicable to any) which mouse button has been clicked (0) left (1) middle (2) right OR which joystick button was pressed 
+
 .SS "char RGFW_Event::droppedFiles[\fBRGFW_MAX_DROPS\fP][\fBRGFW_MAX_PATH\fP]"
 drag and drop data dropped files 
 .SS "\fBu32\fP RGFW_Event::droppedFilesCount"
 house many files were dropped 
-.SS "\fBu32\fP RGFW_Event::fps"
-
 .SS "\fBu64\fP RGFW_Event::frameTime"
 
 .SS "\fBu64\fP RGFW_Event::frameTime2"
@@ -93,6 +91,8 @@ key name of event
 
 .SS "\fBRGFW_point\fP RGFW_Event::point"
 mouse x, y of event (or drop point) 
+.SS "\fBb8\fP RGFW_Event::repeat"
+key press event repeated (the key is being held) 
 .SS "double RGFW_Event::scroll"
 the raw mouse scroll value 
 .SS "\fBu32\fP RGFW_Event::type"

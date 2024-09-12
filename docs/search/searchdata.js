@@ -4,9 +4,9 @@ var indexSectionsWithContent =
   1: "r",
   2: "r",
   3: "r",
-  4: "_abdefhijklnprstwxy",
+  4: "_abdefhijklnprstuwxy",
   5: "biru",
-  6: "ir",
+  6: "_ir",
   7: "cgijmstw",
   8: "r"
 };

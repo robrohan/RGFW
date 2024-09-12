@@ -11,7 +11,6 @@ RGFWDEF void glPerspective(double fovY, double aspect, double zNear, double zFar
 
 int main(void) {
     RGFW_window* win = RGFW_createWindow("First person camera", RGFW_RECT(0, 0, 800, 450), RGFW_CENTER | RGFW_NO_RESIZE );
-    win->fpsCap = 60;
 
     RGFW_window_showMouse(win, 0);
     glEnable(GL_DEPTH_TEST);
@@ -51,7 +50,8 @@ int main(void) {
                 case RGFW_mousePosChanged: {      
                     int dev_x = win->event.point.x;
                     int dev_y = win->event.point.y;
-                    /* apply the changes to pitch and yaw*/
+                    
+					/* apply the changes to pitch and yaw*/
                     yaw += (float)dev_x / 15.0;
                     pitch += (float)dev_y / 15.0;
                     break;
@@ -69,16 +69,16 @@ int main(void) {
                             break;
 
                         case RGFW_Left:
-                            yaw += 5;
-                            break;
-                        case RGFW_Right:
                             yaw -= 5;
                             break;
+                        case RGFW_Right:
+                            yaw += 5;
+                            break;
                         case RGFW_Up:
-                            pitch += 5;
+                            pitch -= 5;
                             break;
                         case RGFW_Down:
-                            pitch -= 5;
+                            pitch += 5;
                             break;
 
                         default: break;
@@ -102,13 +102,13 @@ int main(void) {
         }
         
         if (RGFW_isPressed(win, RGFW_a)) {
-            camX += cos((yaw + 180) * DEG2RAD)/5.0;
-            camZ -= sin((yaw + 180) * DEG2RAD)/5.0;
+            camX += cos(yaw * DEG2RAD)/5.0;
+            camZ -= sin(yaw * DEG2RAD)/5.0;
         }
         
         if (RGFW_isPressed(win, RGFW_d)) {
-            camX += cos(yaw * DEG2RAD)/5.0;
-            camZ -= sin(yaw * DEG2RAD)/5.0;
+            camX += cos((yaw + 180) * DEG2RAD)/5.0;
+            camZ -= sin((yaw + 180) * DEG2RAD)/5.0;
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -137,6 +137,7 @@ int main(void) {
         glEnd();
 
         RGFW_window_swapBuffers(win);
+        RGFW_window_checkFPS(win, 60);
     }
 
     glDeleteTextures(1, &texture);
@@ -151,10 +152,10 @@ void update_camera(void) {
     else if (pitch <= -60)
         pitch = -60;
 
-    glRotatef(-pitch, 1.0, 0.0, 0.0);
-    glRotatef(-yaw, 0.0, 1.0, 0.0);
+    glRotatef(pitch, 1.0, 0.0, 0.0);
+    glRotatef(yaw, 0.0, 1.0, 0.0);
 
-    glTranslatef(-camX, 0.0, -camZ);
+    glTranslatef(camX, 0.0, -camZ);
 }
 
 void glPerspective(double fovY, double aspect, double zNear, double zFar) {
