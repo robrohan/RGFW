@@ -1,4 +1,4 @@
-.TH "RGFW_Event" 3 "Tue Nov 5 2024" "RGFW" \" -*- nroff -*-
+.TH "RGFW_Event" 3 "Fri Dec 27 2024" "RGFW" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -27,7 +27,10 @@ RGFW_Event
 .RI "\fBRGFW_point\fP \fBpoint\fP"
 .br
 .ti -1c
-.RI "\fBu8\fP \fBkeyCode\fP"
+.RI "\fBu8\fP \fBkey\fP"
+.br
+.ti -1c
+.RI "\fBu8\fP \fBkeyChar\fP"
 .br
 .ti -1c
 .RI "\fBb8\fP \fBrepeat\fP"
@@ -45,13 +48,16 @@ RGFW_Event
 .RI "double \fBscroll\fP"
 .br
 .ti -1c
-.RI "\fBu16\fP \fBjoystick\fP"
+.RI "\fBu16\fP \fBgamepad\fP"
 .br
 .ti -1c
 .RI "\fBu8\fP \fBaxisesCount\fP"
 .br
 .ti -1c
-.RI "\fBRGFW_point\fP \fBaxis\fP [2]"
+.RI "\fBu8\fP \fBwhichAxis\fP"
+.br
+.ti -1c
+.RI "\fBRGFW_point\fP \fBaxis\fP [4]"
 .br
 .ti -1c
 .RI "\fBu64\fP \fBframeTime\fP"
@@ -65,10 +71,10 @@ RGFW_Event
 Event structure for checking/getting events 
 .SH "Member Data Documentation"
 .PP 
-.SS "\fBRGFW_point\fP RGFW_Event::axis[2]"
+.SS "\fBRGFW_point\fP RGFW_Event::axis[4]"
 x, y of axises (-100 to 100) 
 .SS "\fBu8\fP RGFW_Event::axisesCount"
-which joystick this event applies to (if applicable to any) number of axises 
+which gamepad this event applies to (if applicable to any) number of axises 
 .SS "\fBu8\fP RGFW_Event::button"
 
 .SS "char RGFW_Event::droppedFiles[\fBRGFW_MAX_DROPS\fP][\fBRGFW_MAX_PATH\fP]"
@@ -79,12 +85,14 @@ house many files were dropped
 
 .SS "\fBu64\fP RGFW_Event::frameTime2"
 this is used for counting the fps 
+.SS "\fBu16\fP RGFW_Event::gamepad"
+
 .SS "\fBb8\fP RGFW_Event::inFocus"
 if the window is in focus or not (this is always true for MacOS windows due to the api being weird) 
-.SS "\fBu16\fP RGFW_Event::joystick"
-
-.SS "\fBu8\fP RGFW_Event::keyCode"
-keycode of event !!Keycodes defined at the bottom of the RGFW_HEADER part of this file!! 
+.SS "\fBu8\fP RGFW_Event::key"
+the physical key of the event, refers to where key is physically !!Keycodes defined at the bottom of the RGFW_HEADER part of this file!! 
+.SS "\fBu8\fP RGFW_Event::keyChar"
+mapped key char of the event 
 .SS "char RGFW_Event::keyName[16]"
 key name of event 
 .SS "\fBu8\fP RGFW_Event::lockState"
@@ -97,6 +105,8 @@ key press event repeated (the key is being held)
 the raw mouse scroll value 
 .SS "\fBu32\fP RGFW_Event::type"
 which event has been sent? 
+.SS "\fBu8\fP RGFW_Event::whichAxis"
+
 
 .SH "Author"
 .PP 

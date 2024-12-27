@@ -18,6 +18,7 @@
 #define RGFW_ALLOC_DROPFILES
 #define RGFW_IMPLEMENTATION
 #define RGFW_PRINT_ERRORS
+#define RGFW_DEBUG
 #include <RGFW.h>
 
 #define MULTILINE_STR(...) #__VA_ARGS__
@@ -66,9 +67,9 @@ void main()
 
 int main(void)
 {
-    RGFW_setGLVersion(RGFW_GL_CORE, 3, 3);
-    RGFW_window* window = RGFW_createWindow("LearnOpenGL", RGFW_RECT(SCR_WIDTH, SCR_HEIGHT, SCR_WIDTH, SCR_HEIGHT), RGFW_ALLOW_DND | RGFW_CENTER | RGFW_SCALE_TO_MONITOR);
-    
+	RGFW_setGLVersion(RGFW_GL_CORE, 3, 3);
+
+	RGFW_window* window = RGFW_createWindow("LearnOpenGL", RGFW_RECT(SCR_WIDTH, SCR_HEIGHT, SCR_WIDTH, SCR_HEIGHT), RGFW_ALLOW_DND | RGFW_CENTER | RGFW_SCALE_TO_MONITOR);
     if (window == NULL)
     {
         printf("Failed to create RGFW window\n");

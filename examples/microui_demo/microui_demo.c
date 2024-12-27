@@ -1,3 +1,4 @@
+#undef _WIN32_WINNT
 #include <stdio.h>
 
 #define RGFW_IMPLEMENTATION
@@ -7,7 +8,6 @@
 
 // these are so small, might as well treat them as single-header files
 #include "renderer.c"
-#include "microui.c"
 
 static  char logbuf[64000];
 static   int logbuf_updated = 0;
@@ -267,12 +267,11 @@ int main(int argc, char **argv) {
         }
 		
         case RGFW_keyPressed: {
-		  char str[2] = {'\0', '\0'};
-		  str[0] = RGFW_keyCodeToCharAuto(window->event.keyCode, window->event.lockState);
+		  char str[2] = {window->event.keyChar, '\0'};
 		  mu_input_text(ctx, str);
 	    }
 		case RGFW_keyReleased: {
-          int c = key_map[window->event.keyCode & 0xff];
+          int c = key_map[window->event.key & 0xff];
           if (c && window->event.type == RGFW_keyPressed) { mu_input_keydown(ctx, c); }
           if (c && window->event.type == RGFW_keyReleased) { mu_input_keyup(ctx, c);   }
           break;

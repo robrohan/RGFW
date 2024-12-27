@@ -965,12 +965,19 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  66136: () => { return window.innerWidth; },  
- 66166: () => { return window.innerHeight; },  
- 66197: () => { Module.useWebGL = true; GLImmediate.init(); },  
- 66243: () => { var canvas = document.getElementById('canvas'); canvas.addEventListener('drop', function(e) { e.preventDefault(); if (e.dataTransfer.file < 0) return; var filenamesArray = []; var count = e.dataTransfer.files.length; var drop_dir = '.rgfw_dropped_files'; Module._RGFW_mkdir(drop_dir); for (var i = 0; i < count; i++) { var file = e.dataTransfer.files[i]; var path = '/' + drop_dir + '/' + file.name.replace("//", '_'); var reader = new FileReader(); reader.onloadend = (e) => { if (reader.readyState != 2) { out('failed to read dropped file: '+file.name+': '+reader.error); } else { var data = e.target.result; _RGFW_writeFile(path, new Uint8Array(data), file.size); } }; reader.readAsArrayBuffer(file); var filename = stringToNewUTF8(path); filenamesArray.push(filename); Module._RGFW_makeSetValue(i, filename); } Module._Emscripten_onDrop(count); for (var i = 0; i < count; ++i) { _free(filenamesArray[i]); } }, true); canvas.addEventListener('dragover', function(e) { e.preventDefault(); return false; }, true); },  
- 67262: () => { document.getElementById('canvas').style.cursor = 'none'; },  
- 67319: ($0) => { document.getElementById("canvas").style.cursor = UTF8ToString($0); }
+  65880: () => { Module.canvas.focus(); },  
+ 65905: () => { Module.useWebGL = true; GLImmediate.init(); },  
+ 65951: () => { window.addEventListener("keydown", (event) => { Module._RGFW_handleKeyEvent(stringToNewUTF8(event.key), stringToNewUTF8(event.code), 1); }, true, ); },  
+ 66104: () => { window.addEventListener("keyup", (event) => { Module._RGFW_handleKeyEvent(stringToNewUTF8(event.key), stringToNewUTF8(event.code), 0); }, true, ); },  
+ 66255: () => { var canvas = document.getElementById('canvas'); canvas.addEventListener('drop', function(e) { e.preventDefault(); if (e.dataTransfer.file < 0) return; var filenamesArray = []; var count = e.dataTransfer.files.length; var drop_dir = '.rgfw_dropped_files'; Module._RGFW_mkdir(drop_dir); for (var i = 0; i < count; i++) { var file = e.dataTransfer.files[i]; var path = '/' + drop_dir + '/' + file.name.replace("//", '_'); var reader = new FileReader(); reader.onloadend = (e) => { if (reader.readyState != 2) { out('failed to read dropped file: '+file.name+': '+reader.error); } else { var data = e.target.result; _RGFW_writeFile(path, new Uint8Array(data), file.size); } }; reader.readAsArrayBuffer(file); var filename = stringToNewUTF8(path); filenamesArray.push(filename); Module._RGFW_makeSetValue(i, filename); } Module._Emscripten_onDrop(count); for (var i = 0; i < count; ++i) { _free(filenamesArray[i]); } }, true); canvas.addEventListener('dragover', function(e) { e.preventDefault(); return false; }, true); },  
+ 67274: ($0) => { document.getElementById("canvas").style.cursor = UTF8ToString($0); },  
+ 67345: () => { document.getElementById('canvas').style.cursor = 'none'; },  
+ 67402: () => { return window.mouseX || 0; },  
+ 67433: () => { return window.mouseY || 0; },  
+ 67464: ($0) => { var canvas = document.getElementById('canvas'); if ($0) { canvas.style.pointerEvents = 'none'; } else { canvas.style.pointerEvents = 'auto'; } },  
+ 67611: ($0) => { navigator.clipboard.writeText(UTF8ToString($0)); },  
+ 67664: () => { return window.innerWidth; },  
+ 67694: () => { return window.innerHeight; }
 };
 
 
@@ -4323,19 +4330,13 @@ var ASM_CONSTS = {
 
   var _emscripten_memcpy_js = (dest, src, num) => HEAPU8.copyWithin(dest, src, src + num);
 
-  var getHeapMax = () =>
-      HEAPU8.length;
   
-  var abortOnCannotGrowMemory = (requestedSize) => {
-      abort(`Cannot enlarge memory arrays to size ${requestedSize} bytes (OOM). Either (1) compile with -sINITIAL_MEMORY=X with X higher than the current value ${HEAP8.length}, (2) compile with -sALLOW_MEMORY_GROWTH which allows increasing the size at runtime, or (3) if you want malloc to return NULL (0) instead of this abort, compile with -sABORTING_MALLOC=0`);
+  var setLetterbox = (element, topBottom, leftRight) => {
+      // Cannot use margin to specify letterboxes in FF or Chrome, since those ignore margins in fullscreen mode.
+      element.style.paddingLeft = element.style.paddingRight = leftRight + 'px';
+      element.style.paddingTop = element.style.paddingBottom = topBottom + 'px';
     };
-  var _emscripten_resize_heap = (requestedSize) => {
-      var oldSize = HEAPU8.length;
-      // With CAN_ADDRESS_2GB or MEMORY64, pointers are already unsigned.
-      requestedSize >>>= 0;
-      abortOnCannotGrowMemory(requestedSize);
-    };
-
+  
   
   var maybeCStringToJsString = (cString) => {
       // "cString > 2" checks if the input is a number, and isn't of the special
@@ -4360,6 +4361,266 @@ var ASM_CONSTS = {
       canvas.height = height;
       return 0;
     };
+  
+  
+  var _emscripten_get_canvas_element_size = (target, width, height) => {
+      var canvas = findCanvasEventTarget(target);
+      if (!canvas) return -4;
+      HEAP32[((width)>>2)] = canvas.width;
+      HEAP32[((height)>>2)] = canvas.height;
+    };
+  
+  
+  
+  
+  var stringToUTF8OnStack = (str) => {
+      var size = lengthBytesUTF8(str) + 1;
+      var ret = stackAlloc(size);
+      stringToUTF8(str, ret, size);
+      return ret;
+    };
+  var getCanvasElementSize = (target) => withStackSave(() => {
+      var w = stackAlloc(8);
+      var h = w + 4;
+  
+      var targetInt = stringToUTF8OnStack(target.id);
+      var ret = _emscripten_get_canvas_element_size(targetInt, w, h);
+      var size = [HEAP32[((w)>>2)], HEAP32[((h)>>2)]];
+      return size;
+    });
+  
+  
+  
+  var setCanvasElementSize = (target, width, height) => {
+      if (!target.controlTransferredOffscreen) {
+        target.width = width;
+        target.height = height;
+      } else {
+        // This function is being called from high-level JavaScript code instead of asm.js/Wasm,
+        // and it needs to synchronously proxy over to another thread, so marshal the string onto the heap to do the call.
+        withStackSave(() => {
+          var targetInt = stringToUTF8OnStack(target.id);
+          _emscripten_set_canvas_element_size(targetInt, width, height);
+        });
+      }
+    };
+  
+  
+  
+  
+  var registerRestoreOldStyle = (canvas) => {
+      var canvasSize = getCanvasElementSize(canvas);
+      var oldWidth = canvasSize[0];
+      var oldHeight = canvasSize[1];
+      var oldCssWidth = canvas.style.width;
+      var oldCssHeight = canvas.style.height;
+      var oldBackgroundColor = canvas.style.backgroundColor; // Chrome reads color from here.
+      var oldDocumentBackgroundColor = document.body.style.backgroundColor; // IE11 reads color from here.
+      // Firefox always has black background color.
+      var oldPaddingLeft = canvas.style.paddingLeft; // Chrome, FF, Safari
+      var oldPaddingRight = canvas.style.paddingRight;
+      var oldPaddingTop = canvas.style.paddingTop;
+      var oldPaddingBottom = canvas.style.paddingBottom;
+      var oldMarginLeft = canvas.style.marginLeft; // IE11
+      var oldMarginRight = canvas.style.marginRight;
+      var oldMarginTop = canvas.style.marginTop;
+      var oldMarginBottom = canvas.style.marginBottom;
+      var oldDocumentBodyMargin = document.body.style.margin;
+      var oldDocumentOverflow = document.documentElement.style.overflow; // Chrome, Firefox
+      var oldDocumentScroll = document.body.scroll; // IE
+      var oldImageRendering = canvas.style.imageRendering;
+  
+      function restoreOldStyle() {
+        var fullscreenElement = document.fullscreenElement
+          || document.webkitFullscreenElement
+          ;
+        if (!fullscreenElement) {
+          document.removeEventListener('fullscreenchange', restoreOldStyle);
+  
+          // Unprefixed Fullscreen API shipped in Chromium 71 (https://bugs.chromium.org/p/chromium/issues/detail?id=383813)
+          // As of Safari 13.0.3 on macOS Catalina 10.15.1 still ships with prefixed webkitfullscreenchange. TODO: revisit this check once Safari ships unprefixed version.
+          document.removeEventListener('webkitfullscreenchange', restoreOldStyle);
+  
+          setCanvasElementSize(canvas, oldWidth, oldHeight);
+  
+          canvas.style.width = oldCssWidth;
+          canvas.style.height = oldCssHeight;
+          canvas.style.backgroundColor = oldBackgroundColor; // Chrome
+          // IE11 hack: assigning 'undefined' or an empty string to document.body.style.backgroundColor has no effect, so first assign back the default color
+          // before setting the undefined value. Setting undefined value is also important, or otherwise we would later treat that as something that the user
+          // had explicitly set so subsequent fullscreen transitions would not set background color properly.
+          if (!oldDocumentBackgroundColor) document.body.style.backgroundColor = 'white';
+          document.body.style.backgroundColor = oldDocumentBackgroundColor; // IE11
+          canvas.style.paddingLeft = oldPaddingLeft; // Chrome, FF, Safari
+          canvas.style.paddingRight = oldPaddingRight;
+          canvas.style.paddingTop = oldPaddingTop;
+          canvas.style.paddingBottom = oldPaddingBottom;
+          canvas.style.marginLeft = oldMarginLeft; // IE11
+          canvas.style.marginRight = oldMarginRight;
+          canvas.style.marginTop = oldMarginTop;
+          canvas.style.marginBottom = oldMarginBottom;
+          document.body.style.margin = oldDocumentBodyMargin;
+          document.documentElement.style.overflow = oldDocumentOverflow; // Chrome, Firefox
+          document.body.scroll = oldDocumentScroll; // IE
+          canvas.style.imageRendering = oldImageRendering;
+          if (canvas.GLctxObject) canvas.GLctxObject.GLctx.viewport(0, 0, oldWidth, oldHeight);
+  
+          if (currentFullscreenStrategy.canvasResizedCallback) {
+            ((a1, a2, a3) => dynCall_iiii.apply(null, [currentFullscreenStrategy.canvasResizedCallback, a1, a2, a3]))(37, 0, currentFullscreenStrategy.canvasResizedCallbackUserData);
+          }
+        }
+      }
+      document.addEventListener('fullscreenchange', restoreOldStyle);
+      // Unprefixed Fullscreen API shipped in Chromium 71 (https://bugs.chromium.org/p/chromium/issues/detail?id=383813)
+      // As of Safari 13.0.3 on macOS Catalina 10.15.1 still ships with prefixed webkitfullscreenchange. TODO: revisit this check once Safari ships unprefixed version.
+      document.addEventListener('webkitfullscreenchange', restoreOldStyle);
+      return restoreOldStyle;
+    };
+  
+  
+  
+  
+  var getBoundingClientRect = (e) => specialHTMLTargets.indexOf(e) < 0 ? e.getBoundingClientRect() : {'left':0,'top':0};
+  var JSEvents_resizeCanvasForFullscreen = (target, strategy) => {
+      var restoreOldStyle = registerRestoreOldStyle(target);
+      var cssWidth = strategy.softFullscreen ? innerWidth : screen.width;
+      var cssHeight = strategy.softFullscreen ? innerHeight : screen.height;
+      var rect = getBoundingClientRect(target);
+      var windowedCssWidth = rect.width;
+      var windowedCssHeight = rect.height;
+      var canvasSize = getCanvasElementSize(target);
+      var windowedRttWidth = canvasSize[0];
+      var windowedRttHeight = canvasSize[1];
+  
+      if (strategy.scaleMode == 3) {
+        setLetterbox(target, (cssHeight - windowedCssHeight) / 2, (cssWidth - windowedCssWidth) / 2);
+        cssWidth = windowedCssWidth;
+        cssHeight = windowedCssHeight;
+      } else if (strategy.scaleMode == 2) {
+        if (cssWidth*windowedRttHeight < windowedRttWidth*cssHeight) {
+          var desiredCssHeight = windowedRttHeight * cssWidth / windowedRttWidth;
+          setLetterbox(target, (cssHeight - desiredCssHeight) / 2, 0);
+          cssHeight = desiredCssHeight;
+        } else {
+          var desiredCssWidth = windowedRttWidth * cssHeight / windowedRttHeight;
+          setLetterbox(target, 0, (cssWidth - desiredCssWidth) / 2);
+          cssWidth = desiredCssWidth;
+        }
+      }
+  
+      // If we are adding padding, must choose a background color or otherwise Chrome will give the
+      // padding a default white color. Do it only if user has not customized their own background color.
+      if (!target.style.backgroundColor) target.style.backgroundColor = 'black';
+      // IE11 does the same, but requires the color to be set in the document body.
+      if (!document.body.style.backgroundColor) document.body.style.backgroundColor = 'black'; // IE11
+      // Firefox always shows black letterboxes independent of style color.
+  
+      target.style.width = cssWidth + 'px';
+      target.style.height = cssHeight + 'px';
+  
+      if (strategy.filteringMode == 1) {
+        target.style.imageRendering = 'optimizeSpeed';
+        target.style.imageRendering = '-moz-crisp-edges';
+        target.style.imageRendering = '-o-crisp-edges';
+        target.style.imageRendering = '-webkit-optimize-contrast';
+        target.style.imageRendering = 'optimize-contrast';
+        target.style.imageRendering = 'crisp-edges';
+        target.style.imageRendering = 'pixelated';
+      }
+  
+      var dpiScale = (strategy.canvasResolutionScaleMode == 2) ? devicePixelRatio : 1;
+      if (strategy.canvasResolutionScaleMode != 0) {
+        var newWidth = (cssWidth * dpiScale)|0;
+        var newHeight = (cssHeight * dpiScale)|0;
+        setCanvasElementSize(target, newWidth, newHeight);
+        if (target.GLctxObject) target.GLctxObject.GLctx.viewport(0, 0, newWidth, newHeight);
+      }
+      return restoreOldStyle;
+    };
+  var JSEvents_requestFullscreen = (target, strategy) => {
+      // EMSCRIPTEN_FULLSCREEN_SCALE_DEFAULT + EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_NONE is a mode where no extra logic is performed to the DOM elements.
+      if (strategy.scaleMode != 0 || strategy.canvasResolutionScaleMode != 0) {
+        JSEvents_resizeCanvasForFullscreen(target, strategy);
+      }
+  
+      if (target.requestFullscreen) {
+        target.requestFullscreen();
+      } else if (target.webkitRequestFullscreen) {
+        target.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+      } else {
+        return JSEvents.fullscreenEnabled() ? -3 : -1;
+      }
+  
+      currentFullscreenStrategy = strategy;
+  
+      if (strategy.canvasResizedCallback) {
+        ((a1, a2, a3) => dynCall_iiii.apply(null, [strategy.canvasResizedCallback, a1, a2, a3]))(37, 0, strategy.canvasResizedCallbackUserData);
+      }
+  
+      return 0;
+    };
+  
+  var doRequestFullscreen = (target, strategy) => {
+      if (!JSEvents.fullscreenEnabled()) return -1;
+      target = findEventTarget(target);
+      if (!target) return -4;
+  
+      if (!target.requestFullscreen
+        && !target.webkitRequestFullscreen
+        ) {
+        return -3;
+      }
+  
+      var canPerformRequests = JSEvents.canPerformEventHandlerRequests();
+  
+      // Queue this function call if we're not currently in an event handler and the user saw it appropriate to do so.
+      if (!canPerformRequests) {
+        if (strategy.deferUntilInEventHandler) {
+          JSEvents.deferCall(JSEvents_requestFullscreen, 1 /* priority over pointer lock */, [target, strategy]);
+          return 1;
+        }
+        return -2;
+      }
+  
+      return JSEvents_requestFullscreen(target, strategy);
+    };
+  var _emscripten_request_fullscreen = (target, deferUntilInEventHandler) => {
+      var strategy = {
+        // These options perform no added logic, but just bare request fullscreen.
+        scaleMode: 0,
+        canvasResolutionScaleMode: 0,
+        filteringMode: 0,
+        deferUntilInEventHandler,
+        canvasResizedCallbackTargetThread: 2
+      };
+      return doRequestFullscreen(target, strategy);
+    };
+
+  var getHeapMax = () =>
+      HEAPU8.length;
+  
+  var abortOnCannotGrowMemory = (requestedSize) => {
+      abort(`Cannot enlarge memory arrays to size ${requestedSize} bytes (OOM). Either (1) compile with -sINITIAL_MEMORY=X with X higher than the current value ${HEAP8.length}, (2) compile with -sALLOW_MEMORY_GROWTH which allows increasing the size at runtime, or (3) if you want malloc to return NULL (0) instead of this abort, compile with -sABORTING_MALLOC=0`);
+    };
+  var _emscripten_resize_heap = (requestedSize) => {
+      var oldSize = HEAPU8.length;
+      // With CAN_ADDRESS_2GB or MEMORY64, pointers are already unsigned.
+      requestedSize >>>= 0;
+      abortOnCannotGrowMemory(requestedSize);
+    };
+
+  /** @suppress {checkTypes} */
+  var _emscripten_sample_gamepad_data = () => {
+      try {
+        if (navigator.getGamepads) return (JSEvents.lastGamepadState = navigator.getGamepads())
+          ? 0 : -1;
+      } catch(e) {
+        err(`navigator.getGamepads() exists, but failed to execute with exception ${e}. Disabling Gamepad access.`);
+        navigator.getGamepads = null; // Disable getGamepads() so that it won't be attempted to be used again.
+      }
+      return -1;
+    };
+
 
   
   
@@ -4478,17 +4739,6 @@ var ASM_CONSTS = {
       return JSEvents.registerOrRemoveHandler(eventHandler);
     };
   
-  /** @suppress {checkTypes} */
-  var _emscripten_sample_gamepad_data = () => {
-      try {
-        if (navigator.getGamepads) return (JSEvents.lastGamepadState = navigator.getGamepads())
-          ? 0 : -1;
-      } catch(e) {
-        err(`navigator.getGamepads() exists, but failed to execute with exception ${e}. Disabling Gamepad access.`);
-        navigator.getGamepads = null; // Disable getGamepads() so that it won't be attempted to be used again.
-      }
-      return -1;
-    };
   var _emscripten_set_gamepadconnected_callback_on_thread = (userData, useCapture, callbackfunc, targetThread) => {
       if (_emscripten_sample_gamepad_data()) return -1;
       return registerGamepadEventCallback(2, userData, useCapture, callbackfunc, 26, "gamepadconnected", targetThread);
@@ -4502,53 +4752,6 @@ var ASM_CONSTS = {
 
   
   
-  
-  var registerKeyEventCallback = (target, userData, useCapture, callbackfunc, eventTypeId, eventTypeString, targetThread) => {
-      if (!JSEvents.keyEvent) JSEvents.keyEvent = _malloc(176);
-  
-      var keyEventHandlerFunc = (e) => {
-        assert(e);
-  
-        var keyEventData = JSEvents.keyEvent;
-        HEAPF64[((keyEventData)>>3)] = e.timeStamp;
-  
-        var idx =((keyEventData)>>2);
-  
-        HEAP32[idx + 2] = e.location;
-        HEAP32[idx + 3] = e.ctrlKey;
-        HEAP32[idx + 4] = e.shiftKey;
-        HEAP32[idx + 5] = e.altKey;
-        HEAP32[idx + 6] = e.metaKey;
-        HEAP32[idx + 7] = e.repeat;
-        HEAP32[idx + 8] = e.charCode;
-        HEAP32[idx + 9] = e.keyCode;
-        HEAP32[idx + 10] = e.which;
-        stringToUTF8(e.key || '', keyEventData + 44, 32);
-        stringToUTF8(e.code || '', keyEventData + 76, 32);
-        stringToUTF8(e.char || '', keyEventData + 108, 32);
-        stringToUTF8(e.locale || '', keyEventData + 140, 32);
-  
-        if (((a1, a2, a3) => dynCall_iiii.apply(null, [callbackfunc, a1, a2, a3]))(eventTypeId, keyEventData, userData)) e.preventDefault();
-      };
-  
-      var eventHandler = {
-        target: findEventTarget(target),
-        eventTypeString,
-        callbackfunc,
-        handlerFunc: keyEventHandlerFunc,
-        useCapture
-      };
-      return JSEvents.registerOrRemoveHandler(eventHandler);
-    };
-  var _emscripten_set_keydown_callback_on_thread = (target, userData, useCapture, callbackfunc, targetThread) =>
-      registerKeyEventCallback(target, userData, useCapture, callbackfunc, 2, "keydown", targetThread);
-
-  var _emscripten_set_keyup_callback_on_thread = (target, userData, useCapture, callbackfunc, targetThread) =>
-      registerKeyEventCallback(target, userData, useCapture, callbackfunc, 3, "keyup", targetThread);
-
-  
-  
-  var getBoundingClientRect = (e) => specialHTMLTargets.indexOf(e) < 0 ? e.getBoundingClientRect() : {'left':0,'top':0};
   
   var fillMouseEventData = (eventStruct, e, target) => {
       assert(eventStruct % 4 == 0);
@@ -11695,7 +11898,11 @@ var wasmImports = {
   /** @export */
   emscripten_memcpy_js: _emscripten_memcpy_js,
   /** @export */
+  emscripten_request_fullscreen: _emscripten_request_fullscreen,
+  /** @export */
   emscripten_resize_heap: _emscripten_resize_heap,
+  /** @export */
+  emscripten_sample_gamepad_data: _emscripten_sample_gamepad_data,
   /** @export */
   emscripten_set_canvas_element_size: _emscripten_set_canvas_element_size,
   /** @export */
@@ -11708,10 +11915,6 @@ var wasmImports = {
   emscripten_set_gamepadconnected_callback_on_thread: _emscripten_set_gamepadconnected_callback_on_thread,
   /** @export */
   emscripten_set_gamepaddisconnected_callback_on_thread: _emscripten_set_gamepaddisconnected_callback_on_thread,
-  /** @export */
-  emscripten_set_keydown_callback_on_thread: _emscripten_set_keydown_callback_on_thread,
-  /** @export */
-  emscripten_set_keyup_callback_on_thread: _emscripten_set_keyup_callback_on_thread,
   /** @export */
   emscripten_set_mousedown_callback_on_thread: _emscripten_set_mousedown_callback_on_thread,
   /** @export */
@@ -11782,12 +11985,13 @@ var wasmImports = {
 Asyncify.instrumentWasmImports(wasmImports);
 var wasmExports = createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors');
+var _malloc = createExportWrapper('malloc');
+var _free = createExportWrapper('free');
+var _RGFW_handleKeyEvent = Module['_RGFW_handleKeyEvent'] = createExportWrapper('RGFW_handleKeyEvent');
 var _Emscripten_onDrop = Module['_Emscripten_onDrop'] = createExportWrapper('Emscripten_onDrop');
 var _RGFW_makeSetValue = Module['_RGFW_makeSetValue'] = createExportWrapper('RGFW_makeSetValue');
 var _RGFW_mkdir = Module['_RGFW_mkdir'] = createExportWrapper('RGFW_mkdir');
 var _RGFW_writeFile = Module['_RGFW_writeFile'] = createExportWrapper('RGFW_writeFile');
-var _free = createExportWrapper('free');
-var _malloc = createExportWrapper('malloc');
 var _main = Module['_main'] = createExportWrapper('main');
 var _fflush = createExportWrapper('fflush');
 var _emscripten_stack_init = () => (_emscripten_stack_init = wasmExports['emscripten_stack_init'])();
@@ -11801,7 +12005,7 @@ var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmE
 var dynCall_iiii = Module['dynCall_iiii'] = createExportWrapper('dynCall_iiii');
 var dynCall_vii = Module['dynCall_vii'] = createExportWrapper('dynCall_vii');
 var dynCall_viii = Module['dynCall_viii'] = createExportWrapper('dynCall_viii');
-var dynCall_viiiii = Module['dynCall_viiiii'] = createExportWrapper('dynCall_viiiii');
+var dynCall_viiiiii = Module['dynCall_viiiiii'] = createExportWrapper('dynCall_viiiiii');
 var dynCall_viidi = Module['dynCall_viidi'] = createExportWrapper('dynCall_viidi');
 var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji');
 var dynCall_ii = Module['dynCall_ii'] = createExportWrapper('dynCall_ii');
@@ -11876,8 +12080,8 @@ var missingLibrarySymbols = [
   'UTF32ToString',
   'stringToUTF32',
   'lengthBytesUTF32',
-  'stringToUTF8OnStack',
   'writeArrayToMemory',
+  'registerKeyEventCallback',
   'fillDeviceOrientationEventData',
   'registerDeviceOrientationEventCallback',
   'fillDeviceMotionEventData',
@@ -11885,14 +12089,9 @@ var missingLibrarySymbols = [
   'screenOrientation',
   'fillOrientationChangeEventData',
   'registerOrientationChangeEventCallback',
-  'JSEvents_requestFullscreen',
-  'JSEvents_resizeCanvasForFullscreen',
-  'registerRestoreOldStyle',
   'hideEverythingExceptGivenElement',
   'restoreHiddenElements',
-  'setLetterbox',
   'softFullscreenResizeWebGLRenderTarget',
-  'doRequestFullscreen',
   'fillPointerlockChangeEventData',
   'registerPointerlockChangeEventCallback',
   'registerPointerlockErrorEventCallback',
@@ -11903,8 +12102,6 @@ var missingLibrarySymbols = [
   'fillBatteryEventData',
   'battery',
   'registerBatteryEventCallback',
-  'setCanvasElementSize',
-  'getCanvasElementSize',
   'jsStackTrace',
   'stackTrace',
   'getEnvStrings',
@@ -12033,8 +12230,8 @@ var unexportedSymbols = [
   'lengthBytesUTF8',
   'intArrayFromString',
   'UTF16Decoder',
+  'stringToUTF8OnStack',
   'JSEvents',
-  'registerKeyEventCallback',
   'specialHTMLTargets',
   'maybeCStringToJsString',
   'findEventTarget',
@@ -12047,11 +12244,18 @@ var unexportedSymbols = [
   'registerFocusEventCallback',
   'fillFullscreenChangeEventData',
   'registerFullscreenChangeEventCallback',
+  'JSEvents_requestFullscreen',
+  'JSEvents_resizeCanvasForFullscreen',
+  'registerRestoreOldStyle',
+  'setLetterbox',
   'currentFullscreenStrategy',
   'restoreOldWindowedStyle',
+  'doRequestFullscreen',
   'registerTouchEventCallback',
   'fillGamepadEventData',
   'registerGamepadEventCallback',
+  'setCanvasElementSize',
+  'getCanvasElementSize',
   'demangle',
   'demangleAll',
   'ExitStatus',

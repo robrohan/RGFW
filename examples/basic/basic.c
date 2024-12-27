@@ -2,6 +2,7 @@
 #define RGFW_ALLOC_DROPFILES
 #define RGFW_IMPLEMENTATION
 #define RGFW_PRINT_ERRORS
+#define RGFW_DEBUG
 
 #include "RGFW.h"
 #include <stdio.h>
@@ -51,7 +52,7 @@ int main(void) {
 
     while (running && !RGFW_isPressed(win, RGFW_Escape)) {   
         #ifdef __APPLE__
-        RGFW_window_checkEvent(win2);
+        if (win2) RGFW_window_checkEvent(win2);
         #endif
 
         RGFW_window_eventWait(win, RGFW_NEXT);
@@ -89,10 +90,10 @@ int main(void) {
                     printf("dropped : %s\n", win->event.droppedFiles[i]);
             }
 
-            else if (win->event.type == RGFW_jsButtonPressed)
+            else if (win->event.type == RGFW_gpButtonPressed)
                 printf("pressed %i\n", win->event.button);
 
-            else if (win->event.type == RGFW_jsAxisMove && !win->event.button)
+            else if (win->event.type == RGFW_gpAxisMove && !win->event.button)
                 printf("{%i, %i}\n", win->event.axis[0].x, win->event.axis[0].y);
         }
 
@@ -167,6 +168,10 @@ void* loop2(void* args) {
 
     running = 0;
     RGFW_window_close(win);
+	
+	#ifdef __APPLE__
+	win2 = NULL;
+	#endif
 
     #ifdef RGFW_WINDOWS
     return 0;
