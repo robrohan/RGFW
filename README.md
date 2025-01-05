@@ -41,7 +41,7 @@ This library does not
 #define RGFW_IMPLEMENTATION
 #include "RGFW.h"
 
-void keyfunc(RGFW_window* win, u32 keycode, char keyName[16], u8 lockState, u8 pressed) {
+void keyfunc(RGFW_window* win, u32 key , u32 keyChar , char keyName[16], u8 lockState, u8 pressed) {
     if (keycode == RGFW_Escape && pressed) {
         RGFW_window_setShouldClose(win);
     }
@@ -86,7 +86,7 @@ int main() {
 ```sh
 linux : gcc main.c -lX11 -lGL -lXrandr -lm
 windows : gcc main.c -lopengl32 -lshell32 -lgdi32 -lwinmm -lm
-macos : gcc main.c -framework Foundation -framework AppKit -framework OpenGL -framework CoreVideo -lm
+macos : gcc main.c -framework Foundation -framework AppKit -framework OpenGL -framework IOKit -lm
 ```
 
 ## other examples

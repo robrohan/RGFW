@@ -46,7 +46,7 @@ int main(void) {
     glEnable(GL_BLEND);             
     glClearColor(0, 0, 0, 0);
 
-    RGFW_window_setMouseStandard(win, RGFW_MOUSE_RESIZE_NESW);
+    RGFW_window_setMouseStandard(win, RGFW_mouseResizeNESW);
     
     u32 fps = 0;
 
@@ -55,8 +55,8 @@ int main(void) {
         if (win2) RGFW_window_checkEvent(win2);
         #endif
 
-        RGFW_window_eventWait(win, RGFW_NEXT);
-        
+        RGFW_window_eventWait(win, RGFW_waitNext);
+
         while (RGFW_window_checkEvent(win) != NULL) {
             if (win->event.type == RGFW_windowMoved) {
                 printf("window moved\n");
@@ -90,11 +90,11 @@ int main(void) {
                     printf("dropped : %s\n", win->event.droppedFiles[i]);
             }
 
-            else if (win->event.type == RGFW_gpButtonPressed)
+            else if (win->event.type == RGFW_gamepadButtonPressed)
                 printf("pressed %i\n", win->event.button);
 
-            else if (win->event.type == RGFW_gpAxisMove && !win->event.button)
-                printf("{%i, %i}\n", win->event.axis[0].x, win->event.axis[0].y);
+            else if (win->event.type == RGFW_gamepadAxisMove)
+                printf("Gamepad (%i) axis (%i) {%i, %i}\n", win->event.gamepad, win->event.whichAxis, win->event.axis[win->event.whichAxis].x, win->event.axis[win->event.whichAxis].y);
         }
 
         drawLoop(win);
@@ -160,9 +160,16 @@ void* loop2(void* args) {
             break;
 
         if (win->event.type == RGFW_mouseButtonPressed) {
+            #ifndef __APPLE__
             RGFW_stopCheckEvents();
+            #endif
         }
 
+        if (win->event.type == RGFW_gamepadButtonPressed)
+            printf("pressed %i\n", win->event.button);
+
+        else if (win->event.type == RGFW_gamepadAxisMove && !win->event.button)
+            printf("Gamepad (%i) axis (%i) {%i, %i}\n", win->event.gamepad, win->event.whichAxis, win->event.axis[win->event.whichAxis].x, win->event.axis[win->event.whichAxis].y);
         drawLoop(win);
     }
 
