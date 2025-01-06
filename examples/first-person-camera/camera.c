@@ -1,6 +1,7 @@
 #define RGFW_IMPLEMENTATION
 #include "RGFW.h"
 
+#include <math.h>
 #define DEG2RAD 3.14/180.0
 
 float pitch = 0.0, yaw= 0.0;
@@ -10,7 +11,7 @@ RGFWDEF void update_camera(void);
 RGFWDEF void glPerspective(double fovY, double aspect, double zNear, double zFar);
 
 int main(void) {
-    RGFW_window* win = RGFW_createWindow("First person camera", RGFW_RECT(0, 0, 800, 450), RGFW_CENTER | RGFW_NO_RESIZE );
+    RGFW_window* win = RGFW_createWindow("First person camera", RGFW_RECT(0, 0, 800, 450), RGFW_center | RGFW_noResize );
 
     RGFW_window_showMouse(win, 0);
     glEnable(GL_DEPTH_TEST);
