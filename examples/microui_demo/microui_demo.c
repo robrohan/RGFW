@@ -216,14 +216,14 @@ static const char button_map[256] = {
 };
 
 static const char key_map[256] = {
-  [ RGFW_ShiftL       & 0xff ] = MU_KEY_SHIFT,
-  [ RGFW_ShiftR       & 0xff ] = MU_KEY_SHIFT,
-  [ RGFW_ControlL        & 0xff ] = MU_KEY_CTRL,
-  [ RGFW_ControlR        & 0xff ] = MU_KEY_CTRL,
-  [ RGFW_AltL         & 0xff ] = MU_KEY_ALT,
-  [ RGFW_AltR         & 0xff ] = MU_KEY_ALT,
-  [ RGFW_Return       & 0xff ] = MU_KEY_RETURN,
-  [ RGFW_BackSpace    & 0xff ] = MU_KEY_BACKSPACE,
+  [ RGFW_shiftL       & 0xff ] = MU_KEY_SHIFT,
+  [ RGFW_shiftR       & 0xff ] = MU_KEY_SHIFT,
+  [ RGFW_controlL        & 0xff ] = MU_KEY_CTRL,
+  [ RGFW_controlR        & 0xff ] = MU_KEY_CTRL,
+  [ RGFW_altL         & 0xff ] = MU_KEY_ALT,
+  [ RGFW_altR         & 0xff ] = MU_KEY_ALT,
+  [ RGFW_return       & 0xff ] = MU_KEY_RETURN,
+  [ RGFW_backSpace    & 0xff ] = MU_KEY_BACKSPACE,
 };
 
 
@@ -242,7 +242,7 @@ static int text_height(mu_Font font) {
 int main(int argc, char **argv) {
   RGFW_UNUSED(argc); RGFW_UNUSED(argv);
   /* init RGFW window */
-  RGFW_window* window = RGFW_createWindow("", RGFW_RECT(0, 0, width, height), RGFW_center | RGFW_scaleToMonitor);
+  RGFW_window* window = RGFW_createWindow("", RGFW_RECT(0, 0, width, height), RGFW_windowCenter | RGFW_windowScaleToMonitor);
   r_init();
 
   /* init microui */

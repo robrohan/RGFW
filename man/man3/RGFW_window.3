@@ -1,4 +1,4 @@
-.TH "RGFW_window" 3 "Mon Jan 6 2025" "RGFW" \" -*- nroff -*-
+.TH "RGFW_window" 3 "Wed Feb 19 2025" "RGFW" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -12,13 +12,13 @@ RGFW_window
 
 .in +1c
 .ti -1c
-.RI "\fBRGFW_window_src\fP \fBsrc\fP"
+.RI "RGFW_window_src \fBsrc\fP"
 .br
 .ti -1c
 .RI "void * \fBuserPtr\fP"
 .br
 .ti -1c
-.RI "\fBRGFW_Event\fP \fBevent\fP"
+.RI "\fBRGFW_event\fP \fBevent\fP"
 .br
 .ti -1c
 .RI "\fBRGFW_rect\fP \fBr\fP"
@@ -27,20 +27,25 @@ RGFW_window
 .RI "\fBRGFW_point\fP \fB_lastMousePoint\fP"
 .br
 .ti -1c
-.RI "\fBu32\fP \fB_winArgs\fP"
+.RI "\fBu32\fP \fB_flags\fP"
+.br
+.ti -1c
+.RI "\fBRGFW_rect\fP \fB_oldRect\fP"
 .br
 .in -1c
 .SH "Member Data Documentation"
 .PP 
+.SS "\fBu32\fP RGFW_window::_flags"
+windows flags (for RGFW to check) 
 .SS "\fBRGFW_point\fP RGFW_window::_lastMousePoint"
 last cusor point (for raw mouse data) 
-.SS "\fBu32\fP RGFW_window::_winArgs"
-windows args (for RGFW to check) 
-.SS "\fBRGFW_Event\fP RGFW_window::event"
+.SS "\fBRGFW_rect\fP RGFW_window::_oldRect"
+rect before fullscreen 
+.SS "\fBRGFW_event\fP RGFW_window::event"
 current event 
 .SS "\fBRGFW_rect\fP RGFW_window::r"
 the x, y, w and h of the struct 
-.SS "\fBRGFW_window_src\fP RGFW_window::src"
+.SS "RGFW_window_src RGFW_window::src"
 src window data 
 .SS "void* RGFW_window::userPtr"
 

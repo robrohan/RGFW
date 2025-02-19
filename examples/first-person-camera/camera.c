@@ -11,7 +11,7 @@ RGFWDEF void update_camera(void);
 RGFWDEF void glPerspective(double fovY, double aspect, double zNear, double zFar);
 
 int main(void) {
-    RGFW_window* win = RGFW_createWindow("First person camera", RGFW_RECT(0, 0, 800, 450), RGFW_center | RGFW_noResize );
+    RGFW_window* win = RGFW_createWindow("First person camera", RGFW_RECT(0, 0, 800, 450), RGFW_windowCenter | RGFW_windowNoResize );
 
     RGFW_window_showMouse(win, 0);
     glEnable(GL_DEPTH_TEST);
@@ -41,7 +41,6 @@ int main(void) {
     glMatrixMode(GL_MODELVIEW);
 
     RGFW_window_mouseHold(win, RGFW_AREA(win->r.w / 2, win->r.h / 2));    
-
     while (RGFW_window_shouldClose(win) == 0) {
         while (RGFW_window_checkEvent(win)) {
             if (win->event.type == RGFW_quit)
@@ -49,8 +48,8 @@ int main(void) {
 
             switch (win->event.type) {
                 case RGFW_mousePosChanged: {      
-                    int dev_x = win->event.point.x;
-                    int dev_y = win->event.point.y;
+                    int dev_x = win->event.vector.x;
+                    int dev_y = win->event.vector.y;
                     
 					/* apply the changes to pitch and yaw*/
                     yaw += (float)dev_x / 15.0;
@@ -59,26 +58,26 @@ int main(void) {
                 }
                 case RGFW_keyPressed:
                     switch (win->event.key) {
-                        case RGFW_Return:
+                        case RGFW_return:
                             RGFW_window_showMouse(win, 0);
                             RGFW_window_mouseHold(win, RGFW_AREA(win->r.w / 2, win->r.h / 2));    
                             break;
                         
-                        case RGFW_BackSpace:
+                        case RGFW_backSpace:
                             RGFW_window_showMouse(win, 1);
                             RGFW_window_mouseUnhold(win);    
                             break;
 
-                        case RGFW_Left:
+                        case RGFW_left:
                             yaw -= 5;
                             break;
-                        case RGFW_Right:
+                        case RGFW_right:
                             yaw += 5;
                             break;
-                        case RGFW_Up:
+                        case RGFW_up:
                             pitch -= 5;
                             break;
-                        case RGFW_Down:
+                        case RGFW_down:
                             pitch += 5;
                             break;
 

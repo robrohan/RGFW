@@ -4,6 +4,8 @@
 #define RGFW_PRINT_ERRORS
 #define RGFW_DEBUG
 
+#include <string.h>
+#include <stdlib.h>
 #include "RGFW.h"
 #include <stdio.h>
 
@@ -11,7 +13,7 @@ void drawLoop(RGFW_window* w); /* I seperate the draw loop only because it's run
 
 #ifdef RGFW_WINDOWS
 DWORD loop2(void* args);
-#else
+#else  
 void* loop2(void* args);
 #endif
 
@@ -29,7 +31,7 @@ RGFW_window* win2;
 
 int main(void) {
 	RGFW_setClassName("RGFW Basic");
-    RGFW_window* win = RGFW_createWindow("RGFW Example Window", RGFW_RECT(500, 500, 500, 500), RGFW_allowDND | RGFW_center);
+    RGFW_window* win = RGFW_createWindow("RGFW Example Window 刺猬", RGFW_RECT(500, 500, 500, 500), RGFW_windowAllowDND | RGFW_windowCenter);
     RGFW_window_makeCurrent(win);
     
     RGFW_window_setIcon(win, icon, RGFW_AREA(3, 3), 4);
@@ -50,13 +52,13 @@ int main(void) {
     
     u32 fps = 0;
 
-    while (running && !RGFW_isPressed(win, RGFW_Escape)) {   
+    RGFW_mouse* mouse = RGFW_loadMouse(icon, RGFW_AREA(3, 3), 4);
+
+    while (running && !RGFW_isPressed(win, RGFW_escape)) {   
         #ifdef __APPLE__
         if (win2) RGFW_window_checkEvent(win2);
         #endif
-
-        RGFW_window_eventWait(win, RGFW_waitNext);
-
+        
         while (RGFW_window_checkEvent(win) != NULL) {
             if (win->event.type == RGFW_windowMoved) {
                 printf("window moved\n");
@@ -68,24 +70,23 @@ int main(void) {
                 running = 0;  
                 break;
             }
-            if (RGFW_isPressed(win, RGFW_Up)) {
-                char* str = RGFW_readClipboard(NULL);
+            if (RGFW_isPressed(win, RGFW_up)) {
+                const char* str = RGFW_readClipboard(NULL);
                 printf("Pasted : %s\n", str);
-                free(str);
             }
-            else if (RGFW_isPressed(win, RGFW_Down))
-                RGFW_writeClipboard("DOWN", 4);
-            else if (RGFW_isPressed(win, RGFW_Space))
+            else if (RGFW_isPressed(win, RGFW_down))
+                RGFW_writeClipboard("DOWN 刺猬", 12);
+            else if (RGFW_isPressed(win, RGFW_space))
                 printf("fps : %i\n", fps);
             else if (RGFW_isPressed(win, RGFW_w))
                 RGFW_window_setMouseDefault(win);
             else if (RGFW_isPressed(win, RGFW_q))
                 RGFW_window_showMouse(win, 0);
             else if (RGFW_isPressed(win, RGFW_t)) {
-                RGFW_window_setMouse(win, icon, RGFW_AREA(3, 3), 4);
+                RGFW_window_setMouse(win, mouse);
             }
 
-            if (win->event.type == RGFW_dnd) {
+            if (win->event.type == RGFW_DND) {
                 for (i = 0; i < win->event.droppedFilesCount; i++)
                     printf("dropped : %s\n", win->event.droppedFiles[i]);
             }
@@ -101,6 +102,8 @@ int main(void) {
         fps = RGFW_window_checkFPS(win, 0);
     }
 
+    RGFW_freeMouse(mouse);
+
     running2 = 0;
     RGFW_window_close(win);
 }
@@ -109,7 +112,7 @@ void drawLoop(RGFW_window *w) {
     RGFW_window_makeCurrent(w);
 
     #ifndef RGFW_VULKAN
-    glClearColor(255, 255, 255, 255);
+    glClearColor(1, 1, 1, 1);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     

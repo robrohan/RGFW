@@ -1,13 +1,5 @@
-WINDOWS:
-    - RGFW_TRANSPARENT_WINDOW (use real alpha)
-
-(addons)
-    - init drag function (drag n' drop) (output)
-	(alloing users to drop to other apps)
-	(this will probably be a big pain to do)
-
-- ensure support for UTF-16 
-- fix wayland stuff
-- android backend
-- homebrew apis? (wii)
-
+- review global vars
+- ensure support for UTF-8 (windows)
+- get key string
+- error handling
+- update wayland support

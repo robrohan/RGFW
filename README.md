@@ -6,12 +6,16 @@
 ![workflow windows](https://github.com/ColleagueRiley/RGFW/actions/workflows/windows.yml/badge.svg)
 ![workflow macOS](https://github.com/ColleagueRiley/RGFW/actions/workflows/macos.yml/badge.svg)
 
+[![Discord Members](https://img.shields.io/discord/829003376532258816.svg?label=Discord&logo=discord)](https://discord.gg/pXVNgVVbvh) 
+
+matrix: [![Matrix](https://img.shields.io/matrix/rsgl-is-sili%3Amatrix.org)](https://matrix.to/#/#rsgl-is-sili:matrix.org)
+
 A cross-platform lightweight single-header very simple-to-use window abstraction library for creating graphics Libraries or simple graphical programs. Written in pure C99.
 
 # About
-RGFW is a free multi-platform single-header very simple-to-use window abstraction framework for creating graphics Libraries or simple graphical programs. it is meant to be used as a very small and flexible alternative library to GLFW. 
+RGFW is a free multi-platform single-header very simple-to-use window abstraction framework for creating graphics Libraries or simple graphical programs. It is meant to be used as a very small and flexible alternative library to GLFW. 
 
-The window backend supports XLib (UNIX), Cocoas (MacOS), webASM (emscripten) and WinAPI (tested on windows *XP*, 10 and 11, and reactOS)\
+The window backend supports XLib (UNIX), Cocoas (MacOS), wasm (emscripten) and WinAPI (tested on windows *XP*, 10 and 11, and reactOS)\
 Windows 95 & 98 have also been tested with RGFW, although results are iffy  
 
 Wayland: to compile wayland add (RGFW_WAYLAND=1). Wayland support is very experimental and broken.
@@ -29,6 +33,7 @@ This library
 2) is very small compared to other libraries
 3) only depends on system API libraries, Winapi, X11, Cocoa
 4) lets you create a window with a graphics context (OpenGL, Vulkan or DirectX) and manage the window and its events only with a few function calls 
+5) is customizable, you enable or disable features
 
 This library does not
 
@@ -41,14 +46,16 @@ This library does not
 #define RGFW_IMPLEMENTATION
 #include "RGFW.h"
 
-void keyfunc(RGFW_window* win, u32 key , u32 keyChar , char keyName[16], u8 lockState, u8 pressed) {
-    if (keycode == RGFW_Escape && pressed) {
+#include <stdio.h>
+
+void keyfunc(RGFW_window* win, RGFW_key key, char keyChar, RGFW_keymod keyMod, RGFW_bool pressed) {
+    if (key == RGFW_escape && pressed) {
         RGFW_window_setShouldClose(win);
     }
 }
 
 int main() {
-    RGFW_window* win = RGFW_createWindow("a window", RGFW_RECT(0, 0, 800, 600), (u16)(RGFW_CENTER | RGFW_NO_RESIZE));
+    RGFW_window* win = RGFW_createWindow("a window", RGFW_RECT(0, 0, 800, 600), RGFW_windowCenter | RGFW_windowNoResize);
 
     RGFW_setKeyCallback(keyfunc); // you can use callbacks like this if you want
 
@@ -85,9 +92,27 @@ int main() {
 
 ```sh
 linux : gcc main.c -lX11 -lGL -lXrandr
-windows : gcc main.c -lopengl32 -lshell32 -lgdi32 -lwinmm
-macos : gcc main.c -framework Foundation -framework AppKit -framework OpenGL -framework IOKit
+windows : gcc main.c -lopengl32 -lgdi32
+macos : gcc main.c -framework CoreVideo -framework Cocoa -framework OpenGL -framework IOKit
 ```
+
+## Dynamic Linking with XDL.h
+XDL can be used to dynamically link X11 functions to RGFW using `dl`. It allows X11 functions to loaded at runtime.
+
+To enable RGFW's use of XDL, add this line to your code:
+
+```c
+#define RGFW_USE_XDL
+```
+
+## Linking OpenGL is not required
+This only applies to Windows, macOS and X11 (with `XDL.h`):
+    
+    
+By default, OpenGL does not need to be explicitly linked unless you are directly using OpenGL functions in your code. If you rely on a OpenGL loader library, you don't need to explicitly link OpenGL at all!
+
+    
+The examples/gl33/gl33 example demonstrates using OpenGL without explicitly linking it. 
 
 ## other examples
 ![examples](screenshot.PNG)
@@ -97,8 +122,8 @@ You can find more examples [here](examples) or [run it in your browser](https://
 # Officially tested Platforms 
 - Windows (ReactOS, XP, Windows 10, 11)
 - Linux
-- MacOS (10.13, 10.14, 14.5) (x86_64)
-- HTML5 (webasm / Emscripten)
+- MacOS (10.13, 10.14, 10.15) (x86_64)
+- HTML5 (wasm / Emscripten)
 - Raspberry PI OS
 
 # Supported GUI libraries
@@ -118,6 +143,9 @@ A list of projects that use RGFW can be found on the RGFW wiki [here](https://gi
 - email : ColleagueRiley@gmail.com 
 - discord : ColleagueRiley
 - discord server : https://discord.gg/pXVNgVVbvh
+- matrix space: https://matrix.to/#/#rsgl-is-sili:matrix.org
+- BlueSky https://bsky.app/profile/colleagueriley.bsky.social
+- Twitter/X : https://x.com/ColleagueRiley
 
 # Supporting RGFW
   There is a RGFW wiki page about things you can do if you want to support the development of RGFW [here](https://github.com/ColleagueRiley/RGFW/wiki/Supporting-RGFW).

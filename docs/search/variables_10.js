@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['userdata_0',['userdata',['../structRGFW__allocator.html#acae051e384054a0b15b276d7870af28a',1,'RGFW_allocator']]],
-  ['userptr_1',['userPtr',['../structRGFW__window.html#a79f693fa547bb7834c244172f5f026b9',1,'RGFW_window']]]
+  ['vector_0',['vector',['../structRGFW__event.html#a0227fb6184ef6c40f905f835e4d46422',1,'RGFW_event']]]
 ];

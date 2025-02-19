@@ -1,5 +1,7 @@
 #define RGFW_IMPLEMENTATION
+#define RGFW_DEBUG
 #include "RGFW.h"
+
 
 RGFW_window* window;
 
@@ -36,8 +38,9 @@ void mouseNotifyfunc(RGFW_window* win, RGFW_point point, u8 status) {
         printf("mouse leave\n");
 }
 
-void mouseposfunc(RGFW_window* win, RGFW_point point) {
-    if (window != win || RGFW_isPressed(win, RGFW_ControlL) == 0) return;
+void mouseposfunc(RGFW_window* win, RGFW_point point, RGFW_point vector) {
+    RGFW_UNUSED(vector);
+    if (window != win || RGFW_isPressed(win, RGFW_controlL) == 0) return;
     printf("mouse moved %i %i\n", point.x, point.y);
 }
 
@@ -59,12 +62,12 @@ void windowrefreshfunc(RGFW_window* win) {
     printf("refresh\n");
 }
 
-void keyfunc(RGFW_window* win, u32 physicalKey, u32 mappedKey, char keyName[16], u8 lockState, u8 pressed) {
+void keyfunc(RGFW_window* win, RGFW_key key, char keyChar, RGFW_keymod keyMod, RGFW_bool pressed) {
     if (window != win) return;
     if (pressed)
-        printf("key pressed : %i (%c) mapped : %i (%c): %s with lockState : %i\n", physicalKey, physicalKey, mappedKey, mappedKey, keyName, lockState);
+        printf("key pressed : %i (%c) mapped : %i (%c): with modstate : %i\n", key, key, keyChar, keyChar, keyMod);
     else
-        printf("key released : %i (%c) mapped: %i (%c): %s with lockState : %i\n", physicalKey, physicalKey, mappedKey, mappedKey, keyName, lockState);
+        printf("key released : %i (%c) mapped: %i (%c): with modstate : %i\n", key, key, keyChar, keyChar, keyMod);
 }
 
 void mousebuttonfunc(RGFW_window* win, u8 button, double scroll, u8 pressed) {
@@ -82,7 +85,7 @@ void mousebuttonfunc(RGFW_window* win, u8 button, double scroll, u8 pressed) {
 
 
 int main(void) {
-    window = RGFW_createWindow("RGFW Callbacks", RGFW_RECT(500, 500, 500, 500), RGFW_center | RGFW_allowDND);
+    window = RGFW_createWindow("RGFW Callbacks", RGFW_RECT(500, 500, 500, 500), RGFW_windowCenter | RGFW_windowAllowDND);
 
 	RGFW_setWindowMoveCallback(windowmovefunc);
 	RGFW_setWindowResizeCallback(windowresizefunc);

@@ -179,6 +179,7 @@ typedef XrmDatabase (*PFN_XrmGetStringDatabase)(const char *data);
 typedef Bool (*PFN_XrmGetResource)(XrmDatabase database, const char *resource_name, const char *resource_class, char **type, XrmValue *value);
 typedef void (*PFN_XrmDestroyDatabase)(XrmDatabase database);
 typedef char *(*PFN_XDisplayName)(const char *string);
+typedef Bool (*PFN_XkbGetState)(Display*, unsigned int, XkbStatePtr);
 
 #ifndef XDL_NO_XRANDR
 #include <X11/extensions/Xrandr.h>
@@ -203,6 +204,7 @@ typedef PFNGLXGETVISUALFROMFBCONFIGPROC PFN_glXGetVisualFromFBConfig;
 typedef PFNGLXGETFBCONFIGATTRIBPROC PFN_glXGetFBConfigAttrib;
 typedef __GLXextFuncPtr (*PFN_glXGetProcAddressARB)(const GLubyte *);
 typedef PFNGLXCHOOSEFBCONFIGPROC PFN_glXChooseFBConfig;
+typedef void (*PFN_glXDestroyContext)(Display *dpy, GLXContext ctx);
 #endif
 
 /* Src vars for reciving the functions */
@@ -309,6 +311,7 @@ PFN_XrmGetStringDatabase XrmGetStringDatabaseSrc;
 PFN_XrmGetResource XrmGetResourceSrc;
 PFN_XrmDestroyDatabase XrmDestroyDatabaseSrc;
 PFN_XDisplayName XDisplayNameSrc;
+PFN_XkbGetState XkbGetStateSrc;
 #ifndef XDL_NO_XRANDR
 PFN_XRRGetScreenResourcesCurrent XRRGetScreenResourcesCurrentSrc;
 PFN_XRRGetCrtcInfo XRRGetCrtcInfoSrc;
@@ -329,6 +332,7 @@ PFN_glXGetVisualFromFBConfig glXGetVisualFromFBConfigSrc;
 PFN_glXGetFBConfigAttrib glXGetFBConfigAttribSrc;
 PFN_glXGetProcAddressARB glXGetProcAddressARBSrc;
 PFN_glXChooseFBConfig glXChooseFBConfigSrc;
+PFN_glXDestroyContext glXDestroyContextSrc;
 #endif
 
 /* Function to source defines */
@@ -354,6 +358,7 @@ PFN_glXChooseFBConfig glXChooseFBConfigSrc;
 #define XDestroyRegion XDestroyRegionSrc
 #define XDestroyWindow XDestroyWindowSrc
 #define XDisplayKeycodes XDisplayKeycodesSrc
+#define XkbGetState XkbGetStateSrc
 #define XEventsQueued XEventsQueuedSrc
 #define XFilterEvent XFilterEventSrc
 #define XFindContext XFindContextSrc
@@ -455,6 +460,7 @@ PFN_glXChooseFBConfig glXChooseFBConfigSrc;
     #define glXGetFBConfigAttrib glXGetFBConfigAttribSrc
     #define glXGetProcAddressARB glXGetProcAddressARBSrc
     #define glXChooseFBConfig glXChooseFBConfigSrc
+    #define glXDestroyContext glXDestroyContextSrc
     #define glXSwapIntervalEXT glXSwapIntervalEXTSrc
 #endif
 
@@ -593,6 +599,7 @@ void XDL_init(void) {
     XDL_PROC_DEF(0, XrmGetResource);
     XDL_PROC_DEF(0, XrmDestroyDatabase);
     XDL_PROC_DEF(0, XDisplayName);
+    XDL_PROC_DEF(0, XkbGetState);
     #ifndef XDL_NO_XRANDR
         XDL_PROC_DEF(2, XRRGetScreenResourcesCurrent);
         XDL_PROC_DEF(2, XRRGetCrtcInfo);
@@ -614,6 +621,7 @@ void XDL_init(void) {
         XDL_PROC_DEF(1, glXGetFBConfigAttrib);
         XDL_PROC_DEF(1, glXGetProcAddressARB);
         XDL_PROC_DEF(1, glXChooseFBConfig);
+        XDL_PROC_DEF(1, glXDestroyContext);
     #endif
 }
 

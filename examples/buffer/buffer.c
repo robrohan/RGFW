@@ -1,6 +1,6 @@
 #define RGFW_IMPLEMENTATION
 #define RGFW_BUFFER
-//#define RGFW_OPENGL
+#define RGFW_OPENGL
 
 #include "RGFW.h"
 
@@ -65,29 +65,29 @@ void drawRect(RGFW_window* win, RGFW_rect r, u8 color[4]) {
 }
 
 int main(void) {
-    RGFW_window* win = RGFW_createWindow("Basic buffer example", RGFW_RECT(0, 0, 500, 500), RGFW_center);
+    RGFW_window* win = RGFW_createWindow("Basic buffer example", RGFW_RECT(0, 0, 500, 500), RGFW_windowCenter | RGFW_windowTransparent);
+    RGFW_window_initBuffer(win);
     
     screenSize = RGFW_getScreenSize();
     
     i8 running = 1;
     while (running) {
         while (RGFW_window_checkEvent(win)) {
-            if (win->event.type == RGFW_quit || RGFW_isPressed(win, RGFW_Escape)) {
+            if (win->event.type == RGFW_quit || RGFW_isPressed(win, RGFW_escape)) {
                 running = 0;
                 break;
             }   
         } 
 	
-        clear(win, (u8[4]){255, 255, 255, 255});
+        clear(win, (u8[4]){0, 0, 255, 125});
         drawRect(win, RGFW_RECT(200, 200, 200, 200), (u8[4]){255, 0, 0, 255});
 
         drawBitmap(win, icon, RGFW_RECT(100, 100, 3, 3));
         
-        //RGFW_window_setGPURender(win, 0);
+        RGFW_window_setGPURender(win, 0);
         RGFW_window_swapBuffers(win);
-        RGFW_window_checkFPS(win, 0);
-    }
+		RGFW_window_checkFPS(win, 0);
+	}
 
     RGFW_window_close(win);
 }
-

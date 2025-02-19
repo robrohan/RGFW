@@ -1,4 +1,4 @@
-.TH "Clipboard" 3 "Mon Jan 6 2025" "RGFW" \" -*- nroff -*-
+.TH "Clipboard" 3 "Wed Feb 19 2025" "RGFW" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -6,14 +6,21 @@ Clipboard \- Clipboard
 .SH SYNOPSIS
 .br
 .PP
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef ptrdiff_t \fBRGFW_ssize_t\fP"
+.br
+.in -1c
 .SS "Functions"
 
 .in +1c
 .ti -1c
-.RI "\fBRGFWDEF\fP char * \fBRGFW_readClipboard\fP (size_t *size)"
+.RI "\fBRGFWDEF\fP const char * \fBRGFW_readClipboard\fP (size_t *size)"
 .br
 .ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_clipboardFree\fP (char *str)"
+.RI "\fBRGFWDEF\fP \fBRGFW_ssize_t\fP \fBRGFW_readClipboardPtr\fP (char *str, size_t strCapacity)"
 .br
 .ti -1c
 .RI "\fBRGFWDEF\fP void \fBRGFW_writeClipboard\fP (const char *text, \fBu32\fP textLen)"
@@ -26,12 +33,16 @@ Clipboard \- Clipboard
 
 .PP
 
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef ptrdiff_t \fBRGFW_ssize_t\fP"
+
 .SH "Function Documentation"
 .PP 
-.SS "\fBRGFWDEF\fP void RGFW_clipboardFree (char * str)"
-the string returned from RGFW_readClipboard must be freed 
-.SS "\fBRGFWDEF\fP char * RGFW_readClipboard (size_t * size)"
+.SS "\fBRGFWDEF\fP const char * RGFW_readClipboard (size_t * size)"
 read clipboard data 
+.SS "\fBRGFWDEF\fP \fBRGFW_ssize_t\fP RGFW_readClipboardPtr (char * str, size_t strCapacity)"
+read clipboard data or send a NULL str to just get the length of the clipboard data 
 .SS "\fBRGFWDEF\fP void RGFW_writeClipboard (const char * text, \fBu32\fP textLen)"
 write text to the clipboard 
 .SH "Author"
