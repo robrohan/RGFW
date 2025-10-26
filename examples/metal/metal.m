@@ -1,4 +1,4 @@
-//========================================================================
+
 // Simple RGFW+Metal example
 //
 //
@@ -30,10 +30,9 @@
 
 /* RGFW will have to be linked/compiled outside of this file
 	because this file uses objective-c and RGFW uses work arounds
-*/ 
-//#define RGFW_IMPLEMENTATION
-#define RGFW_NO_API
-#define RGFWDEF
+*/
+#define RGFW_DEBUG
+#define RGFW_IMPLEMENTATION
 #import "RGFW.h"
 
 #include <Cocoa/Cocoa.h>
@@ -45,24 +44,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+//#include <iostream>
+
 int main(void)
 {
 	id<MTLDevice> device = MTLCreateSystemDefaultDevice();
 	if (!device) {
-        printf("faield to create metal device");
+        printf("failed to create metal device");
 		exit(EXIT_FAILURE);
     }
 
-    RGFW_window* window = RGFW_createWindow("RGFW Metal example", RGFW_RECT(0, 0, 640, 480), RGFW_windowCenter);
+    RGFW_window* window = RGFW_createWindow("RGFW Metal example", 0, 0, 640, 480, RGFW_windowCenter);
+    RGFW_window_setExitKey(window, RGFW_escape);
 
     CAMetalLayer* layer = [CAMetalLayer layer];
     layer.device = device;
     layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-	
-    NSView* view = (NSView*)window->src.view;
+
+    NSView* view = (NSView*)RGFW_window_getView_OSX(window);
     [view setLayer: layer];
     // [view setWantsLayer: YES]; (I think RGFW already sets this)
-    
+
     MTLCompileOptions* compileOptions = [MTLCompileOptions new];
     compileOptions.languageVersion = MTLLanguageVersion1_1;
     NSError* compileError;
@@ -103,16 +105,19 @@ int main(void)
     assert(rps);
 
     while (!RGFW_window_shouldClose(window)) {
-		while (RGFW_window_checkEvent(window) != NULL) {
-			if (window->event.type == RGFW_quit) 
+        RGFW_event event;
+		while (RGFW_window_checkEvent(window, &event) != RGFW_FALSE) {
+			if (event.type == RGFW_quit)
 				break;
 		}
 
         float ratio;
-       	
-        ratio = window->r.w / (float) window->r.h;
 
-        layer.drawableSize = CGSizeMake(window->r.w, window->r.h);
+		i32 w, h;
+        RGFW_window_getSize(window, &w, &h);
+        ratio = w / (float) h;
+
+        layer.drawableSize = CGSizeMake(w, h);
         id<CAMetalDrawable> drawable = [layer nextDrawable];
         assert(drawable);
 
@@ -139,7 +144,7 @@ int main(void)
         [cb commit];
     }
 
-   	
+
     RGFW_window_close(window);
 }
 

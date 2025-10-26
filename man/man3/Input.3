@@ -1,4 +1,4 @@
-.TH "Input" 3 "Wed Feb 19 2025" "RGFW" \" -*- nroff -*-
+.TH "Input" 3 "Sun Oct 26 2025" "RGFW" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -10,32 +10,37 @@ Input \- Input
 
 .in +1c
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isPressed\fP (\fBRGFW_window\fP *win, \fBRGFW_key\fP key)"
+.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isKeyPressed\fP (RGFW_key key)"
 .br
+.RI "returns true if the key is pressed during the current frame "
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_wasPressed\fP (\fBRGFW_window\fP *win, \fBRGFW_key\fP key)"
+.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isKeyReleased\fP (RGFW_key key)"
 .br
+.RI "returns true if the key was released during the current frame "
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isHeld\fP (\fBRGFW_window\fP *win, \fBRGFW_key\fP key)"
+.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isKeyDown\fP (RGFW_key key)"
 .br
+.RI "returns true if the key is down "
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isReleased\fP (\fBRGFW_window\fP *win, \fBRGFW_key\fP key)"
+.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isMousePressed\fP (RGFW_mouseButton button)"
 .br
+.RI "returns true if the mouse button is pressed during the current frame "
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isClicked\fP (\fBRGFW_window\fP *win, \fBRGFW_key\fP key)"
+.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isMouseReleased\fP (RGFW_mouseButton button)"
 .br
+.RI "returns true if the mouse button is released during the current frame "
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isMousePressed\fP (\fBRGFW_window\fP *win, RGFW_mouseButton button)"
+.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isMouseDown\fP (RGFW_mouseButton button)"
 .br
+.RI "returns true if the mouse button is down "
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isMouseHeld\fP (\fBRGFW_window\fP *win, RGFW_mouseButton button)"
+.RI "\fBRGFWDEF\fP void \fBRGFW_getMouseScroll\fP (float *x, float *y)"
 .br
+.RI "outputs the current x, y position of the mouse "
 .ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_isMouseReleased\fP (\fBRGFW_window\fP *win, RGFW_mouseButton button)"
+.RI "\fBRGFWDEF\fP void \fBRGFW_getMouseVector\fP (float *x, float *y)"
 .br
-.ti -1c
-.RI "\fBRGFWDEF\fP \fBRGFW_bool\fP \fBRGFW_wasMousePressed\fP (\fBRGFW_window\fP *win, RGFW_mouseButton button)"
-.br
+.RI "outputs the current x, y movement vector of the mouse "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -46,59 +51,128 @@ Input \- Input
 
 .SH "Function Documentation"
 .PP 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isClicked (\fBRGFW_window\fP * win, \fBRGFW_key\fP key)"
+.SS "\fBRGFWDEF\fP void RGFW_getMouseScroll (float * x, float * y)"
 
+.PP
+outputs the current x, y position of the mouse ! 
 .PP
 \fBParameters\fP
 .RS 4
-\fIkey\fP key code 
+\fIX\fP [OUTPUT] a pointer for the output X value 
+.br
+\fIY\fP [OUTPUT] a pointer for the output Y value 
 .RE
 .PP
 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isHeld (\fBRGFW_window\fP * win, \fBRGFW_key\fP key)"
-if key is held (key code) 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isMouseHeld (\fBRGFW_window\fP * win, RGFW_mouseButton button)"
-if a mouse button is held 
+.SS "\fBRGFWDEF\fP void RGFW_getMouseVector (float * x, float * y)"
+
+.PP
+outputs the current x, y movement vector of the mouse ! 
 .PP
 \fBParameters\fP
 .RS 4
-\fIbutton\fP mouse button code 
+\fIX\fP [OUTPUT] a pointer for the output X vector value 
+.br
+\fIY\fP [OUTPUT] a pointer for the output Y vector value 
 .RE
 .PP
 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isMousePressed (\fBRGFW_window\fP * win, RGFW_mouseButton button)"
-if a mouse button is pressed 
+.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isKeyDown (RGFW_key key)"
+
+.PP
+returns true if the key is down ! 
 .PP
 \fBParameters\fP
 .RS 4
-\fIbutton\fP mouse button code 
+\fIkey\fP the key code of the key you want to check 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The boolean value if the key is down or not 
 .RE
 .PP
 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isMouseReleased (\fBRGFW_window\fP * win, RGFW_mouseButton button)"
-if a mouse button was released 
+.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isKeyPressed (RGFW_key key)"
+
+.PP
+returns true if the key is pressed during the current frame ! 
 .PP
 \fBParameters\fP
 .RS 4
-\fIbutton\fP mouse button code 
+\fIkey\fP the key code of the key you want to check 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The boolean value if the key is pressed or not 
 .RE
 .PP
 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isPressed (\fBRGFW_window\fP * win, \fBRGFW_key\fP key)"
-if window == NULL, it checks if the key is pressed globally\&. Otherwise, it checks only if the key is pressed while the window in focus\&. if key is pressed (key code) 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isReleased (\fBRGFW_window\fP * win, \fBRGFW_key\fP key)"
-if key is released (key code) 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_wasMousePressed (\fBRGFW_window\fP * win, RGFW_mouseButton button)"
-if a mouse button was pressed (checks previous state only) 
+.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isKeyReleased (RGFW_key key)"
+
+.PP
+returns true if the key was released during the current frame ! 
 .PP
 \fBParameters\fP
 .RS 4
-\fIbutton\fP mouse button code 
+\fIkey\fP the key code of the key you want to check 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The boolean value if the key is released or not 
 .RE
 .PP
 
-.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_wasPressed (\fBRGFW_window\fP * win, \fBRGFW_key\fP key)"
-if key was pressed (checks previous state only) (key code) 
+.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isMouseDown (RGFW_mouseButton button)"
+
+.PP
+returns true if the mouse button is down ! 
+.PP
+\fBParameters\fP
+.RS 4
+\fIbutton\fP the mouse button code of the button you want to check 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The boolean value if the button is down or not 
+.RE
+.PP
+
+.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isMousePressed (RGFW_mouseButton button)"
+
+.PP
+returns true if the mouse button is pressed during the current frame ! 
+.PP
+\fBParameters\fP
+.RS 4
+\fIbutton\fP the mouse button code of the button you want to check 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The boolean value if the button is pressed or not 
+.RE
+.PP
+
+.SS "\fBRGFWDEF\fP \fBRGFW_bool\fP RGFW_isMouseReleased (RGFW_mouseButton button)"
+
+.PP
+returns true if the mouse button is released during the current frame ! 
+.PP
+\fBParameters\fP
+.RS 4
+\fIbutton\fP the mouse button code of the button you want to check 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The boolean value if the button is released or not 
+.RE
+.PP
+
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for RGFW from the source code\&.

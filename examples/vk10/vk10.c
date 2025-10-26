@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define RGFW_DEBUG
 #define RGFW_VULKAN
 #define RGFW_IMPLEMENTATION
 #define RGFW_PRINT_ERRORS
-#define RGFW_NO_API
 #include <RGFW.h>
 /*
     This isn't included in RGFW.h itself because
@@ -33,25 +33,25 @@ int commandBuffers(vulkanContext *ctx);
 int draw_frame(vulkanContext *ctx);
 
 float mouse_data[2] = {0.0f, 0.0f};
-RGFWDEF void mousePosCallback(RGFW_window *win, RGFW_point point, RGFW_point vector);
-void mousePosCallback(RGFW_window *win, RGFW_point point, RGFW_point vector) {
-  RGFW_UNUSED(vector);
-  printf("mouse moved %i %i\n", point.x, point.y);
-  float halfWidth = (float)(win->r.w / 2.0f);
-  float halfHeight = (float)(win->r.h / 2.0f);
-  mouse_data[0] = (float)(point.x - halfWidth) / halfWidth;
-  mouse_data[1] = (float)(point.y - halfHeight) / halfHeight;
+RGFWDEF void mousePosCallback(RGFW_window *win, i32 x, i32 y, float vecX, float vecY);
+void mousePosCallback(RGFW_window *win, i32 x, i32 y, float vecX, float vecY) {
+  RGFW_UNUSED(vecX);  RGFW_UNUSED(vecY);
+  printf("mouse moved %i %i\n", x, y);
+  float halfWidth = (float)(win->w / 2.0f);
+  float halfHeight = (float)(win->h / 2.0f);
+  mouse_data[0] = (float)(x - halfWidth) / halfWidth;
+  mouse_data[1] = (float)(y - halfHeight) / halfHeight;
 }
 
 int main(void) {
   RGFW_window *win =
-      RGFW_createWindow("Vulkan Example", RGFW_RECT(0, 0, 500, 500),
+      RGFW_createWindow("Vulkan Example", 0, 0, 500, 500,
                         RGFW_windowAllowDND | RGFW_windowCenter);
-
+  RGFW_window_setExitKey(win, RGFW_escape);
   RGFW_setMousePosCallback(mousePosCallback);
 
   vulkanContext ctx;
-  
+
   int res = initVulkanDevice(win, &ctx);
   if (res == 0) {
     vkinit_vulkan_info = initVulkan(&ctx);
@@ -62,9 +62,10 @@ int main(void) {
   }
 
   u8 running = 1;
-  while (running && !RGFW_isPressed(win, RGFW_escape)) {
-    while (RGFW_window_checkEvent(win)) {
-      if (win->event.type == RGFW_quit) {
+  while (running && !RGFW_window_isKeyPressed(win, RGFW_escape)) {
+    RGFW_event event;
+    while (RGFW_window_checkEvent(win, &event)) {
+      if (event.type == RGFW_quit) {
         running = 0;
         break;
       }
@@ -249,7 +250,7 @@ int commandBuffers(vulkanContext* ctx) {
     clearColor.color.float32[3] = 1.0f;
     render_pass_info.clearValueCount = 1;
     render_pass_info.pClearValues = &clearColor;
-    
+
     VkViewport viewport;
     viewport.x = 0.0f;
     viewport.y = 0.0f;
@@ -277,10 +278,10 @@ int commandBuffers(vulkanContext* ctx) {
     vkCmdPushConstants(vkinit_vulkan_info->command_buffers[i],
                        vkinit_vulkan_info->pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT,
                        0, sizeof(mouse_data), &mouse_data);
-    
+
     vkCmdDraw(vkinit_vulkan_info->command_buffers[i], 3, 1, 0, 0);
     vkCmdEndRenderPass(vkinit_vulkan_info->command_buffers[i]);
-    
+
     if (vkEndCommandBuffer(vkinit_vulkan_info->command_buffers[i]) != VK_SUCCESS) {
 
       printf("failed to record command buffer\n");

@@ -6,6 +6,15 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
+#if _MSC_VER
+#pragma comment(lib, "uuid")
+#pragma comment(lib, "dxguid")
+#pragma comment(lib, "d3dcompiler")
+#pragma comment(lib, "dxgi")
+#pragma comment(lib, "d3d11")
+#pragma comment(lib, "windowscodecs.lib")
+#endif
+
 typedef struct {
 	IDXGIFactory* pFactory;
 	IDXGIAdapter* pAdapter;
@@ -46,7 +55,8 @@ int directXInit(RGFW_window* win, directXinfo* info);
 void directXClose(RGFW_window* win, directXinfo* dxInfo);
 
 int main(void) {
-    RGFW_window* win = RGFW_createWindow("name", RGFW_RECT(0, 0, 500, 500), RGFW_windowCenter);
+    RGFW_window* win = RGFW_createWindow("name", 0, 0, 500, 500, RGFW_windowCenter);
+    RGFW_window_setExitKey(win, RGFW_escape);
 
     directXinfo dxInfo;
     if (directXInit(win, &dxInfo) == 0) {
@@ -60,18 +70,18 @@ int main(void) {
     D3D11_VIEWPORT viewport;
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
-    viewport.Width = win->r.w;
-    viewport.Height = win->r.h;
+    viewport.Width = win->w;
+    viewport.Height = win->h;
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
     dxInfo.pDeviceContext->lpVtbl->RSSetViewports(dxInfo.pDeviceContext, 1, &viewport);
-    
+
     float vertices[] = {
         0.0f, 0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
         -0.5f, -0.5f, 0.0f
     };
-    
+
     ID3D11Buffer* pVertexBuffer;
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
@@ -109,14 +119,14 @@ int main(void) {
     D3D11_INPUT_ELEMENT_DESC layout[] = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
-    
+
     dxInfo.pDevice->lpVtbl->CreateInputLayout(dxInfo.pDevice, layout, 1, pVertexShaderBlob->lpVtbl->GetBufferPointer(pVertexShaderBlob), pVertexShaderBlob->lpVtbl->GetBufferSize(pVertexShaderBlob), &pInputLayout);
     dxInfo.pDeviceContext->lpVtbl->IASetInputLayout(dxInfo.pDeviceContext, pInputLayout);
 
     for (;;) {
-        RGFW_window_checkEvent(win); // NOTE: checking events outside of a while loop may cause input lag 
+        RGFW_pollEvents();
 
-        if (win->event.type == RGFW_quit || RGFW_isPressed(win, RGFW_escape))
+        if (RGFW_window_shouldClose(win))
             break;
 
         float clearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
@@ -133,12 +143,12 @@ int main(void) {
         dxInfo.pDeviceContext->lpVtbl->VSSetShader(dxInfo.pDeviceContext, pVertexShader, NULL, 0);
         dxInfo.pDeviceContext->lpVtbl->PSSetShader(dxInfo.pDeviceContext, pPixelShader, NULL, 0);
         dxInfo.pDeviceContext->lpVtbl->Draw(dxInfo.pDeviceContext, 3, 0);
-       
+
         dxInfo.swapchain->lpVtbl->Present(dxInfo.swapchain, 0, 0);
     }
 
     directXClose(win, &dxInfo);
-    
+
     RGFW_window_close(win);
 }
 
@@ -163,8 +173,8 @@ int directXInit(RGFW_window* win, directXinfo* info) {
 		info->pFactory->lpVtbl->Release(info->pFactory);
 		return 0;
 	}
-	
-	RGFW_window_createDXSwapChain(win, info->pFactory, (IUnknown*)info->pDevice, &info->swapchain);
+
+	RGFW_window_createSwapChain_DirectX(win, info->pFactory, (IUnknown*)info->pDevice, &info->swapchain);
 
 	ID3D11Texture2D* pBackBuffer;
 	info->swapchain->lpVtbl->GetBuffer(info->swapchain, 0, &__uuidof(ID3D11Texture2D), (LPVOID*) &pBackBuffer);
@@ -172,8 +182,8 @@ int directXInit(RGFW_window* win, directXinfo* info) {
 	pBackBuffer->lpVtbl->Release(pBackBuffer);
 
 	D3D11_TEXTURE2D_DESC depthStencilDesc = { 0 };
-	depthStencilDesc.Width = win->r.w;
-	depthStencilDesc.Height = win->r.h;
+	depthStencilDesc.Width = win->w;
+	depthStencilDesc.Height = win->h;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;

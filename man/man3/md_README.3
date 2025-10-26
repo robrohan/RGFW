@@ -1,85 +1,120 @@
-.TH "md_README" 3 "Wed Feb 19 2025" "RGFW" \" -*- nroff -*-
+.TH "md_README" 3 "Sun Oct 26 2025" "RGFW" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-md_README \- Riley's Graphics library FrameWork 
+md_README \- Riley's General Framework for Windowing 
 .PP
 
 .SH "Build statuses"
 .PP
   
 .PP
-\fC\fP.PP
-matrix: \fC\fP
+\fC\fP.SH "About"
 .PP
-A cross-platform lightweight single-header very simple-to-use window abstraction library for creating graphics Libraries or simple graphical programs\&. Written in pure C99\&.
-.SH "About"
+RGFW:
 .PP
-RGFW is a free multi-platform single-header very simple-to-use window abstraction framework for creating graphics Libraries or simple graphical programs\&. It is meant to be used as a very small and flexible alternative library to GLFW\&.
+.IP "\(bu" 2
+\fBis\fP an stb-style single headerfile and is very portable
+.IP "\(bu" 2
+\fBis\fP primarly written in C99 in mind
+.IP "\(bu" 2
+\fBhas\fP a C89 compatible API on going changes to make the implementation more C89 friendly
+.IP "\(bu" 2
+\fBis\fP comparable to GLFW or aspects of SDL but it's leading motive is to be a flexible and lightweight windowing library
+.IP "\(bu" 2
+\fBis\fP a very small compared to other libraries
+.IP "\(bu" 2
+\fBis\fP a general framework and can be used for games, apps or tools
+.IP "\(bu" 2
+\fBdoes\fP only depend on system API libraries, Winapi, X11, Cocoa, etc \fBNO\fP dependencies
+.IP "\(bu" 2
+\fBdoes\fP help you create a window with a graphics context (OpenGL, Vulkan, WebGPU, Metal, or DirectX) and manage the window and its events only with a few function calls
+.IP "\(bu" 2
+\fBis\fP customizable, you enable or disable features
+.IP "\(bu" 2
+\fBdoes\fP work with X11 (UNIX), Wayland (\fIexperimental\fP) (LINUX), Cocoa (MacOS), Emscripten (WASM) and WinAPI (tested on windows \fIXP\fP, 10, 11, reactOS and has limited 9x support)
+.IP "\(bu" 2
+\fBis\fP multi-paradigm, with a flexible event system, including multiple ways of handling events (callbacks, queue, state lookups)
+.IP "\(bu" 2
+\fBdoes\fP include a large number of examples for learning RGFW
 .PP
-The window backend supports XLib (UNIX), Cocoas (MacOS), wasm (emscripten) and WinAPI (tested on windows \fIXP\fP, 10 and 11, and reactOS)\\ Windows 95 & 98 have also been tested with RGFW, although results are iffy 
-.br
 .PP
-Wayland: to compile wayland add (RGFW_WAYLAND=1)\&. Wayland support is very experimental and broken\&.
+RGFW:
 .PP
-The graphics backend supports OpenGL (EGL, software, OSMesa, GLES), Vulkan, DirectX, \fCMetal\fP and software rendering buffers\&.
+.IP "\(bu" 2
+does \fBnot\fP handle any rendering for you (other than creating your graphics context)
+.IP "\(bu" 2
+is \fBnot\fP an OpenGL focused library, RGFW can be used with ANY graphics API
+.IP "\(bu" 2
+does \fBnot\fP do anything above the bare minimum in terms of functionality
 .PP
-RGFW was designed as a backend for RSGL, but it can be used standalone or for other libraries, such as Raylib which uses it as an optional alternative backend\&.
 .PP
-RGFW is multi-paradigm,\\ By default RGFW uses a flexible event system, similar to that of SDL, however you can use callbacks if you prefer that method\&.
+There is a Makefile including for compiling the examples\&. NOTE: \fCWAYLAND=1\fP OR can be defined to compile for wayland\&. \fCWAYLAND_X11=1\fP can be used instead if you want examples to fallback to X11 if a Wayland display is not found\&. This adds \fC#define RGFW_WAYLAND\fP in the implementation (or defines \fCRGFW_WAYLAND\fP AND \fCRGFW_X11\fP)
 .PP
-This library
+Included in the framework are helper functions for multiple rendering APIs OpenGL (Native, EGL, GLES), Vulkan, DirectX, \fCMetal\fP and WebGPU, you can also easily blit raw data directly onto the window with the \fCRGFW_surface\fP object using \fCRGFW_window_blitSurface\fP\&.
 .PP
-1) is single header and portable (written in C99 in mind) 2) is very small compared to other libraries 3) only depends on system API libraries, Winapi, X11, Cocoa 4) lets you create a window with a graphics context (OpenGL, Vulkan or DirectX) and manage the window and its events only with a few function calls 5) is customizable, you enable or disable features
-.PP
-This library does not
-.PP
-1) Handle any rendering for you (other than creating your graphics context) 2) do anything above the bare minimum in terms of functionality
+You must explicitly request these helper functions via, \fC#define RGFW_OPENGL\fP, \fC#define RGFW_VULKAN\fP, \fC#define RGFW_DIRECTX\fP, \fC#define RGFW_WEBGPU\fP\&.
 .SH "Getting started"
 .PP
 .SS "a very simple example"
 .PP
 .nf
 #define RGFW_IMPLEMENTATION
+#define RGFW_OPENGL /* if this line is not added, OpenGL functions will not be included */
 #include "RGFW\&.h"
 
 #include <stdio\&.h>
 
-void keyfunc(RGFW_window* win, RGFW_key key, char keyChar, RGFW_keymod keyMod, RGFW_bool pressed) {
+#ifdef RGFW_MACOS
+#include <OpenGL/gl\&.h> /* why does macOS do this */
+#else
+#include <GL/gl\&.h>
+#endif
+
+void keyfunc(RGFW_window* win, RGFW_key key, u8 keyChar, RGFW_keymod keyMod, RGFW_bool repeat, RGFW_bool pressed) {
+    RGFW_UNUSED(repeat);
     if (key == RGFW_escape && pressed) {
-        RGFW_window_setShouldClose(win);
+        RGFW_window_setShouldClose(win, 1);
     }
 }
 
 int main() {
-    RGFW_window* win = RGFW_createWindow("a window", RGFW_RECT(0, 0, 800, 600), RGFW_windowCenter | RGFW_windowNoResize);
+    /* the RGFW_windowOpenGL flag tells it to create an OpenGL context, but you can also create your own with RGFW_window_createContext_OpenGL */
+    RGFW_window* win = RGFW_createWindow("a window", 0, 0, 800, 600, RGFW_windowCenter | RGFW_windowNoResize | RGFW_windowOpenGL);
 
     RGFW_setKeyCallback(keyfunc); // you can use callbacks like this if you want
 
     while (RGFW_window_shouldClose(win) == RGFW_FALSE) {
-        while (RGFW_window_checkEvent(win)) {  // or RGFW_window_checkEvents(); if you only want callbacks
+        RGFW_event event;
+        while (RGFW_window_checkEvent(win, &event)) {  // or RGFW_pollEvents(); if you only want callbacks
             // you can either check the current event yourself
-            if (win->event\&.type == RGFW_mouseButtonPressed && win->event\&.button == RGFW_mouseLeft) {
-                printf("You clicked at x: %d, y: %d\n", win->event\&.point\&.x, win->event\&.point\&.y);
+            if (event\&.type == RGFW_quit) break;
+
+            i32 mouseX, mouseY;
+            RGFW_window_getMouse(win, &mouseX, &mouseY);
+
+            if (event\&.type == RGFW_mouseButtonPressed && event\&.button\&.value == RGFW_mouseLeft) {
+                printf("You clicked at x: %d, y: %d\n", mouseX, mouseY);
             }
 
             // or use the existing functions
-            if (RGFW_isMousePressed(win, RGFW_mouseRight)) {
-                printf("The right mouse button was clicked at x: %d, y: %d\n", win->event\&.point\&.x, win->event\&.point\&.y);
+            if (RGFW_isMousePressed(RGFW_mouseRight)) {
+                printf("The right mouse button was clicked at x: %d, y: %d\n", mouseX, mouseY);
             }
         }
-        
-        glClearColor(0\&.1f, 0\&.1f, 0\&.1f, 1\&.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
-        // You can use modern OpenGL techniques, but this method is more straightforward for drawing just one triangle\&.
+        // OpenGL 1\&.1 is used here for a simple example, but you can use any version you want (if you request it first (see gl33/gl33\&.c))
+        glClearColor(1\&.0f, 1\&.0f, 1\&.0f, 1\&.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
         glBegin(GL_TRIANGLES);
-        glColor3f(1, 0, 0); glVertex2f(-0\&.6, -0\&.75);
-        glColor3f(0, 1, 0); glVertex2f(0\&.6, -0\&.75);
-        glColor3f(0, 0, 1); glVertex2f(0, 0\&.75);
+            glColor3f(1\&.0f, 0\&.0f, 0\&.0f); glVertex2f(-0\&.6f, -0\&.75f);
+            glColor3f(0\&.0f, 1\&.0f, 0\&.0f); glVertex2f(0\&.6f, -0\&.75f);
+            glColor3f(0\&.0f, 0\&.0f, 1\&.0f); glVertex2f(0\&.0f, 0\&.75f);
         glEnd();
 
-        RGFW_window_swapBuffers(win);
+        RGFW_window_swapBuffers_OpenGL(win);
+        glFlush();
     }
 
     RGFW_window_close(win);
@@ -92,41 +127,12 @@ int main() {
 .nf
 linux : gcc main\&.c -lX11 -lGL -lXrandr
 windows : gcc main\&.c -lopengl32 -lgdi32
-macos : gcc main\&.c -framework CoreVideo -framework Cocoa -framework OpenGL -framework IOKit
+macos : gcc main\&.c -framework Cocoa -framework OpenGL
 .fi
 .PP
-.SS "Dynamic Linking with XDL\&.h"
-XDL can be used to dynamically link X11 functions to RGFW using \fCdl\fP\&. It allows X11 functions to loaded at runtime\&.
-.PP
-To enable RGFW's use of XDL, add this line to your code:
-.PP
-.PP
-.nf
-#define RGFW_USE_XDL
-.fi
-.PP
-.SS "Linking OpenGL is not required"
-This only applies to Windows, macOS and X11 (with \fC\fBXDL\&.h\fP\fP):
-.PP
-By default, OpenGL does not need to be explicitly linked unless you are directly using OpenGL functions in your code\&. If you rely on a OpenGL loader library, you don't need to explicitly link OpenGL at all!
-.PP
-The examples/gl33/gl33 example demonstrates using OpenGL without explicitly linking it\&.
 .SS "other examples"
 .PP
 You can find more examples [here](examples) or \fCrun it in your browser\fP with emscripten
-.SH "Officially tested Platforms"
-.PP
-.IP "\(bu" 2
-Windows (ReactOS, XP, Windows 10, 11)
-.IP "\(bu" 2
-Linux
-.IP "\(bu" 2
-MacOS (10\&.13, 10\&.14, 10\&.15) (x86_64)
-.IP "\(bu" 2
-HTML5 (wasm / Emscripten)
-.IP "\(bu" 2
-Raspberry PI OS
-.PP
 .SH "Supported GUI libraries"
 .PP
 A list of GUI libraries that can be used with RGFW can be found on the RGFW wiki \fChere\fP
@@ -169,11 +175,11 @@ RGFW uses the Zlib/libPNG license, this means you can use RGFW freely as long as
 Permission is granted to anyone to use this software for any purpose,
 including commercial applications, and to alter it and redistribute it
 freely, subject to the following restrictions:
-  
+
 1\&. The origin of this software must not be misrepresented; you must not
    claim that you wrote the original software\&. If you use this software
    in a product, an acknowledgment in the product documentation would be
-   appreciated but is not required\&. 
+   appreciated but is not required\&.
 2\&. Altered source versions must be plainly marked as such, and must not be
    misrepresented as being the original software\&.
 3\&. This notice may not be removed or altered from any source distribution\&.

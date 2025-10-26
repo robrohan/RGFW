@@ -5,7 +5,7 @@
 
 
 #define __gltypes_h_
-#define RGFW_BUFFER
+#define RGFW_DEBUG
 #define RGFW_IMPLEMENTATION
 #include "RGFW.h"
 
@@ -26,13 +26,14 @@ void uniform_color_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms
 }
 
 int main() {
-	RGFW_area area = RGFW_AREA(500, 500);
+	RGFW_window* win = RGFW_createWindow("name", 500, 500, 500, 500, (u64)RGFW_windowCenter | RGFW_windowNoResize);
+    RGFW_window_setExitKey(win, RGFW_escape);
 
-	RGFW_window* win = RGFW_createWindow("name", RGFW_RECT(500, 500, 500, 500), (u64)RGFW_windowCenter | RGFW_windowNoResize);
-	RGFW_window_initBufferSize(win, area);
+    u8* buffer = (u8*)RGFW_ALLOC(500 * 500 * 4);
+	RGFW_surface* surface = RGFW_createSurface(buffer, 500, 500, RGFW_formatRGBA8);
 
 	glContext context;
-	init_glContext(&context, (u32**)&win->buffer, area.w, 500, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+	init_glContext(&context, (u32**)&buffer, win->w, 500, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
 	float points[] = { -0.5, -0.5, 0,
 						0.5, -0.5, 0,
@@ -55,13 +56,14 @@ int main() {
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glViewport(0, 0, win->r.w, win->r.h);
+	glViewport(0, 0, win->w, win->h);
 
 	i32 running = 1;
 
 	while (running) {
-		while (RGFW_window_checkEvent(win)) {
-			if (win->event.type == RGFW_quit || RGFW_isPressed(win, RGFW_escape)) {
+		RGFW_event event;
+		while (RGFW_window_checkEvent(win, &event)) {
+			if (event.type == RGFW_quit || RGFW_isKeyPressed(RGFW_escape)) {
 				running = 0;
 				break;
 			}
@@ -70,10 +72,14 @@ int main() {
 		glClearColor(0xFF, 0xFF, 0xFF, 0xFF);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		RGFW_window_swapBuffers(win);
+
+        RGFW_window_blitSurface(win, surface);
 	}
 
 	free_glContext(&context);
+
+    RGFW_surface_free(surface);
+	RGFW_FREE(buffer);
 
 	RGFW_window_close(win);
 }

@@ -1,4 +1,4 @@
-# Riley's Graphics library FrameWork
+# Riley's General Framework for Windowing
 ![THE RGFW Logo](https://github.com/ColleagueRiley/RGFW/blob/main/logo.png?raw=true)
 
 ## Build statuses
@@ -6,83 +6,95 @@
 ![workflow windows](https://github.com/ColleagueRiley/RGFW/actions/workflows/windows.yml/badge.svg)
 ![workflow macOS](https://github.com/ColleagueRiley/RGFW/actions/workflows/macos.yml/badge.svg)
 
-[![Discord Members](https://img.shields.io/discord/829003376532258816.svg?label=Discord&logo=discord)](https://discord.gg/pXVNgVVbvh) 
-
-matrix: [![Matrix](https://img.shields.io/matrix/rsgl-is-sili%3Amatrix.org)](https://matrix.to/#/#rsgl-is-sili:matrix.org)
-
-A cross-platform lightweight single-header very simple-to-use window abstraction library for creating graphics Libraries or simple graphical programs. Written in pure C99.
+[![Discord Members](https://img.shields.io/discord/829003376532258816.svg?label=Discord&logo=discord)](https://discord.gg/pXVNgVVbvh)
 
 # About
-RGFW is a free multi-platform single-header very simple-to-use window abstraction framework for creating graphics Libraries or simple graphical programs. It is meant to be used as a very small and flexible alternative library to GLFW. 
+RGFW:
 
-The window backend supports XLib (UNIX), Cocoas (MacOS), wasm (emscripten) and WinAPI (tested on windows *XP*, 10 and 11, and reactOS)\
-Windows 95 & 98 have also been tested with RGFW, although results are iffy  
+* **is** an stb-style single headerfile and is very portable
+* **is** primarly written in C99 in mind
+* **has** a C89 compatible API on going changes to make the implementation more C89 friendly
+* **is** comparable to GLFW or aspects of SDL but it's leading motive is to be a flexible and lightweight windowing library
+* **is** a very small compared to other libraries
+* **is** a general framework and can be used for games, apps or tools
+* **does** only depend on system API libraries, Winapi, X11, Cocoa, etc **NO** dependencies
+* **does** help you create a window with a graphics context (OpenGL, Vulkan, WebGPU, Metal, or DirectX) and manage the window and its events only with a few function calls
+* **is** customizable, you enable or disable features
+* **does** work with X11 (UNIX), Wayland (*experimental*) (LINUX), Cocoa (MacOS), Emscripten (WASM) and WinAPI (tested on windows *XP*, 10, 11, reactOS and has limited 9x support)
+* **is** multi-paradigm, with a flexible event system, including multiple ways of handling events (callbacks, queue, state lookups)
+* **does** include a large number of examples for learning RGFW
 
-Wayland: to compile wayland add (RGFW_WAYLAND=1). Wayland support is very experimental and broken.
+RGFW:
 
-The graphics backend supports OpenGL (EGL, software, OSMesa, GLES), Vulkan, DirectX, [Metal](https://github.com/RSGL/RGFW-Metal) and software rendering buffers.
+* does **not** handle any rendering for you (other than creating your graphics context)
+* is **not** an OpenGL focused library, RGFW can be used with ANY graphics API
+* does **not** do anything above the bare minimum in terms of functionality
 
-RGFW was designed as a backend for RSGL, but it can be used standalone or for other libraries, such as Raylib which uses it as an optional alternative backend.
+There is a Makefile including for compiling the examples. NOTE: `WAYLAND=1` OR  can be defined to compile for wayland. `WAYLAND_X11=1` can be used instead if you want examples to fallback to X11 if a Wayland display is not found. This adds `#define RGFW_WAYLAND` in the implementation (or defines `RGFW_WAYLAND` AND `RGFW_X11`)
 
-RGFW is multi-paradigm,\
-By default RGFW uses a flexible event system, similar to that of SDL, however you can use callbacks if you prefer that method. 
+Included in the framework are helper functions for multiple rendering APIs OpenGL (Native, EGL, GLES), Vulkan, DirectX, [Metal](https://github.com/ColleagueRiley/RGFW/blob/main/examples/metal/metal.m) and WebGPU, you can also easily blit raw data directly onto the window with the `RGFW_surface` object using `RGFW_window_blitSurface`.
 
-This library
-
-1) is single header and portable (written in C99 in mind)
-2) is very small compared to other libraries
-3) only depends on system API libraries, Winapi, X11, Cocoa
-4) lets you create a window with a graphics context (OpenGL, Vulkan or DirectX) and manage the window and its events only with a few function calls 
-5) is customizable, you enable or disable features
-
-This library does not
-
-1) Handle any rendering for you (other than creating your graphics context)
-2) do anything above the bare minimum in terms of functionality 
+You must explicitly request these helper functions via, `#define RGFW_OPENGL`, `#define RGFW_VULKAN`, `#define RGFW_DIRECTX`, `#define RGFW_WEBGPU`.
 
 # Getting started
 ## a very simple example
 ```c
 #define RGFW_IMPLEMENTATION
+#define RGFW_OPENGL /* if this line is not added, OpenGL functions will not be included */
 #include "RGFW.h"
 
 #include <stdio.h>
 
-void keyfunc(RGFW_window* win, RGFW_key key, char keyChar, RGFW_keymod keyMod, RGFW_bool pressed) {
+#ifdef RGFW_MACOS
+#include <OpenGL/gl.h> /* why does macOS do this */
+#else
+#include <GL/gl.h>
+#endif
+
+void keyfunc(RGFW_window* win, RGFW_key key, u8 keyChar, RGFW_keymod keyMod, RGFW_bool repeat, RGFW_bool pressed) {
+    RGFW_UNUSED(repeat);
     if (key == RGFW_escape && pressed) {
-        RGFW_window_setShouldClose(win);
+        RGFW_window_setShouldClose(win, 1);
     }
 }
 
 int main() {
-    RGFW_window* win = RGFW_createWindow("a window", RGFW_RECT(0, 0, 800, 600), RGFW_windowCenter | RGFW_windowNoResize);
+    /* the RGFW_windowOpenGL flag tells it to create an OpenGL context, but you can also create your own with RGFW_window_createContext_OpenGL */
+    RGFW_window* win = RGFW_createWindow("a window", 0, 0, 800, 600, RGFW_windowCenter | RGFW_windowNoResize | RGFW_windowOpenGL);
 
     RGFW_setKeyCallback(keyfunc); // you can use callbacks like this if you want
 
     while (RGFW_window_shouldClose(win) == RGFW_FALSE) {
-        while (RGFW_window_checkEvent(win)) {  // or RGFW_window_checkEvents(); if you only want callbacks
+        RGFW_event event;
+        while (RGFW_window_checkEvent(win, &event)) {  // or RGFW_pollEvents(); if you only want callbacks
             // you can either check the current event yourself
-            if (win->event.type == RGFW_mouseButtonPressed && win->event.button == RGFW_mouseLeft) {
-                printf("You clicked at x: %d, y: %d\n", win->event.point.x, win->event.point.y);
+            if (event.type == RGFW_quit) break;
+
+            i32 mouseX, mouseY;
+            RGFW_window_getMouse(win, &mouseX, &mouseY);
+
+            if (event.type == RGFW_mouseButtonPressed && event.button.value == RGFW_mouseLeft) {
+                printf("You clicked at x: %d, y: %d\n", mouseX, mouseY);
             }
 
             // or use the existing functions
-            if (RGFW_isMousePressed(win, RGFW_mouseRight)) {
-                printf("The right mouse button was clicked at x: %d, y: %d\n", win->event.point.x, win->event.point.y);
+            if (RGFW_isMousePressed(RGFW_mouseRight)) {
+                printf("The right mouse button was clicked at x: %d, y: %d\n", mouseX, mouseY);
             }
         }
-        
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
-        // You can use modern OpenGL techniques, but this method is more straightforward for drawing just one triangle.
+        // OpenGL 1.1 is used here for a simple example, but you can use any version you want (if you request it first (see gl33/gl33.c))
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
         glBegin(GL_TRIANGLES);
-        glColor3f(1, 0, 0); glVertex2f(-0.6, -0.75);
-        glColor3f(0, 1, 0); glVertex2f(0.6, -0.75);
-        glColor3f(0, 0, 1); glVertex2f(0, 0.75);
+            glColor3f(1.0f, 0.0f, 0.0f); glVertex2f(-0.6f, -0.75f);
+            glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(0.6f, -0.75f);
+            glColor3f(0.0f, 0.0f, 1.0f); glVertex2f(0.0f, 0.75f);
         glEnd();
 
-        RGFW_window_swapBuffers(win);
+        RGFW_window_swapBuffers_OpenGL(win);
+        glFlush();
     }
 
     RGFW_window_close(win);
@@ -90,44 +102,20 @@ int main() {
 }
 ```
 
+
 ```sh
 linux : gcc main.c -lX11 -lGL -lXrandr
 windows : gcc main.c -lopengl32 -lgdi32
-macos : gcc main.c -framework CoreVideo -framework Cocoa -framework OpenGL -framework IOKit
+macos : gcc main.c -framework Cocoa -framework OpenGL
 ```
-
-## Dynamic Linking with XDL.h
-XDL can be used to dynamically link X11 functions to RGFW using `dl`. It allows X11 functions to loaded at runtime.
-
-To enable RGFW's use of XDL, add this line to your code:
-
-```c
-#define RGFW_USE_XDL
-```
-
-## Linking OpenGL is not required
-This only applies to Windows, macOS and X11 (with `XDL.h`):
-    
-    
-By default, OpenGL does not need to be explicitly linked unless you are directly using OpenGL functions in your code. If you rely on a OpenGL loader library, you don't need to explicitly link OpenGL at all!
-
-    
-The examples/gl33/gl33 example demonstrates using OpenGL without explicitly linking it. 
 
 ## other examples
 ![examples](screenshot.PNG)
 
 You can find more examples [here](examples) or [run it in your browser](https://colleagueriley.github.io/RGFW/) with emscripten
 
-# Officially tested Platforms 
-- Windows (ReactOS, XP, Windows 10, 11)
-- Linux
-- MacOS (10.13, 10.14, 10.15) (x86_64)
-- HTML5 (wasm / Emscripten)
-- Raspberry PI OS
-
 # Supported GUI libraries
-A list of GUI libraries that can be used with RGFW can be found on the RGFW wiki [here](https://github.com/ColleagueRiley/RGFW/wiki/GUI-libraries-that-can-be-used-with-RGFW)
+A list of GUI libraries that can be used with RGFW can be found on the RGFW wiki [here](https://github.com/colleagueriley/RGFW/wiki/GUI-libraries-that-can-be-used-with-RGFW)
 
 # Documentation
 There is a lot of in-header-documentation, but more documentation can be found at https://colleagueriley.github.io/RGFW/docs/index.html
@@ -140,7 +128,7 @@ A list of bindings can be found on the RGFW wiki [here](https://github.com/Colle
 A list of projects that use RGFW can be found on the RGFW wiki [here](https://github.com/ColleagueRiley/RGFW/wiki/Projects-that-use-RGFW)
 
 # Contacts
-- email : ColleagueRiley@gmail.com 
+- email : ColleagueRiley@gmail.com
 - discord : ColleagueRiley
 - discord server : https://discord.gg/pXVNgVVbvh
 - matrix space: https://matrix.to/#/#rsgl-is-sili:matrix.org
@@ -160,11 +148,11 @@ RGFW uses the Zlib/libPNG license, this means you can use RGFW freely as long as
 Permission is granted to anyone to use this software for any purpose,
 including commercial applications, and to alter it and redistribute it
 freely, subject to the following restrictions:
-  
+
 1. The origin of this software must not be misrepresented; you must not
    claim that you wrote the original software. If you use this software
    in a product, an acknowledgment in the product documentation would be
-   appreciated but is not required. 
+   appreciated but is not required.
 2. Altered source versions must be plainly marked as such, and must not be
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.

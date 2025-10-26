@@ -1,4 +1,4 @@
-.TH "graphics_API" 3 "Wed Feb 19 2025" "RGFW" \" -*- nroff -*-
+.TH "graphics_API" 3 "Sun Oct 26 2025" "RGFW" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -6,102 +6,12 @@ graphics_API \- Graphics_API
 .SH SYNOPSIS
 .br
 .PP
-.SS "Functions"
-
-.in +1c
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_window_makeCurrent\fP (\fBRGFW_window\fP *win)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP \fBu32\fP \fBRGFW_window_checkFPS\fP (\fBRGFW_window\fP *win, \fBu32\fP fpsCap)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_window_swapBuffers\fP (\fBRGFW_window\fP *win)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_window_swapInterval\fP (\fBRGFW_window\fP *win, \fBi32\fP swapInterval)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_window_setGPURender\fP (\fBRGFW_window\fP *win, \fBRGFW_bool\fP set)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_window_setCPURender\fP (\fBRGFW_window\fP *win, \fBRGFW_bool\fP set)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_setGLStencil\fP (\fBi32\fP stencil)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_setGLSamples\fP (\fBi32\fP samples)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_setGLStereo\fP (\fBi32\fP stereo)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_setGLAuxBuffers\fP (\fBi32\fP auxBuffers)"
-.br
-.ti -1c
-.RI "typedef \fBRGFW_ENUM\fP (\fBu8\fP, RGFW_glProfile)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_setGLVersion\fP (RGFW_glProfile profile, \fBi32\fP major, \fBi32\fP minor)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_setDoubleBuffer\fP (\fBRGFW_bool\fP useDoubleBuffer)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void * \fBRGFW_getProcAddress\fP (const char *procname)"
-.br
-.ti -1c
-.RI "\fBRGFWDEF\fP void \fBRGFW_window_makeCurrent_OpenGL\fP (\fBRGFW_window\fP *win)"
-.br
-.ti -1c
-.RI "void * \fBRGFW_getCurrent_OpenGL\fP (void)"
-.br
-.in -1c
 .SH "Detailed Description"
 .PP 
 
 .IP "\(bu" 2
 
 .PP
-
-.SH "Function Documentation"
-.PP 
-.SS "typedef RGFW_ENUM (\fBu8\fP, RGFW_glProfile)"
-which profile to use for the opengl verion 
-.SS "void * RGFW_getCurrent_OpenGL (void)"
-get the current context (OpenGL backend (GLX) (WGL) (EGL) (cocoa) (webgl)) 
-.SS "\fBRGFWDEF\fP void * RGFW_getProcAddress (const char * procname)"
-get native opengl proc address 
-.SS "\fBRGFWDEF\fP void RGFW_setDoubleBuffer (\fBRGFW_bool\fP useDoubleBuffer)"
-
-.SS "\fBRGFWDEF\fP void RGFW_setGLAuxBuffers (\fBi32\fP auxBuffers)"
-number of aux buffers (0 by default) 
-.SS "\fBRGFWDEF\fP void RGFW_setGLSamples (\fBi32\fP samples)"
-set number of sampiling buffers (4 by default) 
-.SS "\fBRGFWDEF\fP void RGFW_setGLStencil (\fBi32\fP stencil)"
-native API functions
-.PP
-OpenGL init hints set stencil buffer bit size (8 by default) 
-.SS "\fBRGFWDEF\fP void RGFW_setGLStereo (\fBi32\fP stereo)"
-use GL_STEREO (GL_FALSE by default) 
-.SS "\fBRGFWDEF\fP void RGFW_setGLVersion (RGFW_glProfile profile, \fBi32\fP major, \fBi32\fP minor)"
-Set OpenGL version hint (core or compatibility profile) 
-.SS "\fBRGFWDEF\fP \fBu32\fP RGFW_window_checkFPS (\fBRGFW_window\fP * win, \fBu32\fP fpsCap)"
-
-.SS "\fBRGFWDEF\fP void RGFW_window_makeCurrent (\fBRGFW_window\fP * win)"
-< make the window the current opengl drawing context
-.PP
-NOTE: if you want to switch the graphics context's thread, you have to run RGFW_window_makeCurrent(NULL); on the old thread then RGFW_window_makeCurrent(valid_window) on the new thread 
-.SS "\fBRGFWDEF\fP void RGFW_window_makeCurrent_OpenGL (\fBRGFW_window\fP * win)"
-to be called by RGFW_window_makeCurrent 
-.SS "\fBRGFWDEF\fP void RGFW_window_setCPURender (\fBRGFW_window\fP * win, \fBRGFW_bool\fP set)"
-
-.SS "\fBRGFWDEF\fP void RGFW_window_setGPURender (\fBRGFW_window\fP * win, \fBRGFW_bool\fP set)"
-
-.SS "\fBRGFWDEF\fP void RGFW_window_swapBuffers (\fBRGFW_window\fP * win)"
-swap the rendering buffer 
-.SS "\fBRGFWDEF\fP void RGFW_window_swapInterval (\fBRGFW_window\fP * win, \fBi32\fP swapInterval)"
 
 .SH "Author"
 .PP 

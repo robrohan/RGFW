@@ -11,6 +11,7 @@ static GLuint  index_buf[BUFFER_SIZE *  6];
 
 static int width  = 800;
 static int height = 600;
+static float pixelRatio = 1.0f;
 static int buf_idx;
 
 void r_init(void) {
@@ -40,7 +41,6 @@ void r_init(void) {
 static void flush(void) {
   if (buf_idx == 0) { return; }
 
-  glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
@@ -167,7 +167,9 @@ void r_set_clip_rect(mu_Rect rect) {
 
 void r_clear(mu_Color clr) {
   flush();
-  glClearColor(clr.r / 255., clr.g / 255., clr.b / 255., clr.a / 255.);
+
+  glViewport(0, 0, (i32)((float)width * pixelRatio), (i32)((float)height * pixelRatio));
+  glClearColor(clr.r / 255.0f, clr.g / 255.0f, clr.b / 255.0f, clr.a / 255.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 

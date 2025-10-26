@@ -1,0 +1,39 @@
+.TH "RGFW_mouseButtonEvent" 3 "Sun Oct 26 2025" "RGFW" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+RGFW_mouseButtonEvent \- event data for any mouse button event (press/release)  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <RGFW\&.h>\fP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "RGFW_eventType \fBtype\fP"
+.br
+.ti -1c
+.RI "\fBRGFW_window\fP * \fBwin\fP"
+.br
+.ti -1c
+.RI "\fBu8\fP \fBvalue\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+event data for any mouse button event (press/release) 
+.SH "Member Data Documentation"
+.PP 
+.SS "RGFW_eventType RGFW_mouseButtonEvent::type"
+which event has been sent? 
+.SS "\fBu8\fP RGFW_mouseButtonEvent::value"
+
+.SS "\fBRGFW_window\fP* RGFW_mouseButtonEvent::win"
+the window this event applies too (for event queue events) 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for RGFW from the source code\&.

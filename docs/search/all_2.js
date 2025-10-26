@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['button_0',['button',['../structRGFW__event.html#a67b50f8eaad088c3e99a15b1d2adfeee',1,'RGFW_event']]]
+  ['drag_0',['drag',['../unionRGFW__event.html#a15132a2c04d6c7836af2064a985d7792',1,'RGFW_event']]],
+  ['drop_1',['drop',['../unionRGFW__event.html#a3615aced4912b5e2c7c94cbedc0119c5',1,'RGFW_event']]]
 ];

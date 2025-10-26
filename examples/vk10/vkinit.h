@@ -101,18 +101,19 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
   void* pUserData
 ){
-  printf("\nDebug callback: %s\n",pCallbackData->pMessage);
-  printf(" Severity: %s\n",getDebugSeverityStr(Severity));
-  printf(" Type: %s\n",getDebugType(Type));
-  printf(" Objects ");
+    printf("\nDebug callback: %s\n",pCallbackData->pMessage);
+    printf(" Severity: %s\n",getDebugSeverityStr(Severity));
+    printf(" Type: %s\n",getDebugType(Type));
+    printf(" Objects ");
 
-  for (u32 i= 0; i < pCallbackData->objectCount; i++) {
-    #ifdef _WIN32
+    for (u32 i= 0; i < pCallbackData->objectCount; i++) {
+#ifdef _WIN32
     printf("%llx ", pCallbackData->pObjects[i].objectHandle);
-    #else
+#else
     printf("%lx ", pCallbackData->pObjects[i].objectHandle);
-    #endif
-  }
+#endif
+    }
+    return 1;
 }
 
 const char* getDebugSeverityStr(VkDebugUtilsMessageSeverityFlagBitsEXT Severity)
@@ -206,10 +207,10 @@ int initVulkanDevice(RGFW_window* win, vulkanContext* ctx) {
     ctx->image_count = 0;
     vkInit_vulkan_info.current_frame = 0;
 
-    ctx->width = win->r.w;
-    ctx->height = win->r.h;
+    ctx->width = win->w;
+    ctx->height = win->h;
 
-    VkApplicationInfo appInfo = { 0 };
+    VkApplicationInfo appInfo = (VkApplicationInfo){ 0 };
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "vkapp";
     appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -231,7 +232,7 @@ int initVulkanDevice(RGFW_window* win, vulkanContext* ctx) {
     for (int i = 0; i < enabledExtensionCount; i++) {
         printf("%s\n", ppEnabledExtensionNames[i]);
     }
-    VkInstanceCreateInfo instance_create_info = { 0 };
+    VkInstanceCreateInfo instance_create_info = (VkInstanceCreateInfo){ 0 };
     instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instance_create_info.pApplicationInfo = &appInfo;
     instance_create_info.enabledExtensionCount = enabledExtensionCount;
@@ -246,7 +247,7 @@ int initVulkanDevice(RGFW_window* win, vulkanContext* ctx) {
     vkInit_vulkan_info.debugMessenger= VK_NULL_HANDLE;
     createDebugCallback();
 #endif
-    RGFW_window_createVKSurface(win, vkInit_vulkan_info.instance, &ctx->surface);
+    RGFW_window_createSurface_Vulkan(win, vkInit_vulkan_info.instance, &ctx->surface);
 
     u32 deviceCount = 0;
     vkEnumeratePhysicalDevices(vkInit_vulkan_info.instance, &deviceCount, NULL);
@@ -254,34 +255,45 @@ int initVulkanDevice(RGFW_window* win, vulkanContext* ctx) {
     vkEnumeratePhysicalDevices(vkInit_vulkan_info.instance, &deviceCount, devices);
 
     vkInit_vulkan_info.physical_device = devices[0];
+    free(devices);
 
-    u32 queue_family_count = 0;
-    
+    u32 graphics_queue_family = 0;
+
     if (vkInit_vulkan_info.physical_device != NULL && deviceCount) {
+        u32 queue_family_count = 0;
+        VkQueueFamilyProperties* queueFamilies;
+
         vkGetPhysicalDeviceQueueFamilyProperties(vkInit_vulkan_info.physical_device, &queue_family_count, NULL);
-        VkQueueFamilyProperties* queueFamilies = (VkQueueFamilyProperties*) malloc(sizeof(VkQueueFamilyProperties) * queue_family_count);
+        queueFamilies = (VkQueueFamilyProperties*) malloc(sizeof(VkQueueFamilyProperties) * queue_family_count);
 
         vkGetPhysicalDeviceQueueFamilyProperties(vkInit_vulkan_info.physical_device, &queue_family_count, queueFamilies);
+
+        for(u32 i = 0; i < queue_family_count; i++) {
+            if(queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                graphics_queue_family = i;
+                break;
+            }
+        }
+
+        free(queueFamilies);
     }
 
     float queuePriority = 1.0f;
 
-    VkPhysicalDeviceFeatures device_features = { 0 };
+    VkPhysicalDeviceFeatures device_features = (VkPhysicalDeviceFeatures){ 0 };
 
-    VkDeviceCreateInfo device_create_info = { 0 };
+    VkDeviceCreateInfo device_create_info = (VkDeviceCreateInfo){ 0 };
     device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    VkDeviceQueueCreateInfo queue_create_infos[2] = {
-        {0},
-        {0},
+    VkDeviceQueueCreateInfo queue_create_info = {
+            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .queueCount = 1,
+            .pQueuePriorities = &queuePriority,
+            .queueFamilyIndex = graphics_queue_family,
+            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
     };
-    queue_create_infos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queue_create_infos[0].queueCount = 1;
-    queue_create_infos[0].pQueuePriorities = &queuePriority;
-    queue_create_infos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queue_create_infos[1].queueCount = 1;
-    queue_create_infos[1].pQueuePriorities = &queuePriority;
-    device_create_info.queueCreateInfoCount = 2;
-    device_create_info.pQueueCreateInfos = queue_create_infos;
+
+    device_create_info.queueCreateInfoCount = 1;
+    device_create_info.pQueueCreateInfos = &queue_create_info;
 
     device_create_info.enabledExtensionCount = 1;
 
@@ -291,7 +303,8 @@ int initVulkanDevice(RGFW_window* win, vulkanContext* ctx) {
 
     device_create_info.ppEnabledExtensionNames = device_extensions;
     device_create_info.pEnabledFeatures = &device_features;
-    if ((vkInit_vulkan_info.physical_device == NULL || deviceCount == 0) || 
+
+    if ((vkInit_vulkan_info.physical_device == NULL || deviceCount == 0) ||
         vkCreateDevice(vkInit_vulkan_info.physical_device, &device_create_info, NULL, &vkInit_vulkan_info.device) != VK_SUCCESS) {
         fprintf(stderr, "failed to create logical device!\n");
         return -1;

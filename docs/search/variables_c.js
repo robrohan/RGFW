@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['r_0',['r',['../structRGFW__window.html#a638e63f187096f668c11438ae44d8700',1,'RGFW_window']]],
-  ['rect_1',['rect',['../structRGFW__monitor.html#afad80514eed14d9349a5bb9c05f13d04',1,'RGFW_monitor']]],
-  ['refreshrate_2',['refreshRate',['../structRGFW__monitor.html#af51ed0654e4ce3148f45d4cdd83f631d',1,'RGFW_monitor']]],
-  ['repeat_3',['repeat',['../structRGFW__event.html#a600894dfa6229cceee18f96a6552da4e',1,'RGFW_event']]]
+  ['type_0',['type',['../structRGFW__commonEvent.html#a53522d5d358d5557f221e23219d701d5',1,'RGFW_commonEvent::type()'],['../structRGFW__mouseButtonEvent.html#a0893b3e610d7eb3fe558fdd33accc88c',1,'RGFW_mouseButtonEvent::type()'],['../structRGFW__mouseScrollEvent.html#aed8e474193f28aaff745a7df9cdecf49',1,'RGFW_mouseScrollEvent::type()'],['../structRGFW__mousePosEvent.html#a37a47ef67491396a82a828516f14c952',1,'RGFW_mousePosEvent::type()'],['../structRGFW__keyEvent.html#af01cdd0979b29cdc428729ccec230e42',1,'RGFW_keyEvent::type()'],['../structRGFW__dataDropEvent.html#a3aef15cb09d80083be98209a67648b3c',1,'RGFW_dataDropEvent::type()'],['../structRGFW__dataDragEvent.html#ab6ce092854efdca18f37746702b030f5',1,'RGFW_dataDragEvent::type()'],['../structRGFW__scaleUpdatedEvent.html#a97770f2f96037a07070b1095cd8ed17a',1,'RGFW_scaleUpdatedEvent::type()'],['../unionRGFW__event.html#ab309d573101fed3b9137b3e42f408ce0',1,'RGFW_event::type()']]]
 ];

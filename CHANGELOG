@@ -1,68 +1,439 @@
 changelog
 ---------
 
-Current Version: RGFW 1.6-dev
+Current:
+
+Release:    RGFW 1.8.5-dev
 -----------------------------------------------
-- fix wasm key event bug (key release events not being processed)
-- Get rid of `RGFW_ALLOC_DROPFILES` (it's not actually useful)
+This release is being worked on in a fork, but will not be pushed to main until 1.8.0's offical release.
+-----------------------------------------------
+
+Release:    RGFW 1.8.0 (pre-release)
+-----------------------------------------------
+This release focuses on improving RGFW’s API while making its internals more stable and less prone to bugs.
+It also cleans up inconsistencies, reworks poor design choices, and removes non-essential features.
+
+My goal with this release is to establish RGFW as more than just a GLFW alternative. RGFW is a windowing framework. This means some features found in GLFW fall outside its scope, and conversely, RGFW provides capabilities GLFW does not.
+I also took inspiration from aspects of SDL’s user level API design that I found particularly well thought out.
+-----------------------------------------------
+
+Breaking Changes:
+------------
+- state checking functions renamed `RGFW_isPressed` -> `RGFW_keyPressed`
+- RGFW_isKeyPressed / RGFW_isKeyReleased only checks if the key is pressed in that frame, is `RGFW_isKeyDown` if you want to know the current state.
+- removed `RGFW_wasMousePressed` (`RGFW_isMouseReleased` / `RGFW_isMouseDown` should be used now)
+- removed `RGFW_wasPressed` (`RGFW_isKeyReleased` / `RGFW_isKeyDown` should be used now)
+- removed `RGFW_isClicked` (`RGFW_isKeyReleased` should be used now)
+- removed `RGFW_sleep`
+- removed `RGFW_checkFPS`
+- removed `RGFW_windowFreeOnClose`
+- remove RGFW _ shape types and replace them with raw `i32`
+- Don't define `RGFW_OPENGL` by default and the `RGFW_windowOpenGL` flag is required to create a window with OpenGL
+- rename `RGFW_KP_[Key]` keys to `RGFW_kp[Key]`
+- rename `RGFW_Multiply` to `RGFW_kpMultiply`
+- remove RGFW_windowOpenglSoftware
+- RGFW_errOpenglContext -> RGFW_errOpenGLContext
+- switch to union of event structs of events
+- use userside event structure for checking for events rather than one in `RGFW_window`
+- use dynamic `RGFW_surface` for software rendering rather than `win->buffer`
+- remove RGFW_sleep
+- remove RGFW_checkFPS
+- remove swapBuffers, keep swapBuffers_OpenGL
+- remove getTime/setTime
+- rename `RGFW_dnd` to `RGFW_drop`
+- rename `RGFW_dndInit` to `RGFW_drag`
+- rename `RGFW_window_initOpenGL`/`RGFW_window_freeOpenGL`  to `RGFW_window_createContext_OpenGL`/`RGFW_window_deleteContext_OpenGL`
+- rename `RGFW_getCurrent` -> `RGFW_window_getCurrentWindow_OpenGL`/`RGFW_window_getCurrentWindow_EGL`
+- rename `RGFW_window_makeCurrent` -> `RGFW_window_makeCurrentWindow_OpenGL`/`RGFW_window_makeCurrentWindow_EGL`
+- rename `RGFW_window_makeCurrent_OpenGL`/`RGFW_window_makeCurrent_EGL` -> `RGFW_window_makeCurrentContext_OpenGL`/`RGFW_window_makeCurrentContext_EGL`
+- rename DirectX functions to _DirectX `RGFW_window_createSwapChain_DirectX`
+- rename Vulkan functions to _Vulkan eg. `RGFW_window_createSurface_Vulkan`
+- rename `RGFW_window_eventWait` to `RGFW_waitForEvent`
+- rename`RGFW_window_checkEvent` polls the uses `RGFW_window_pollEvents` and then uses the event queue to get an event
+- replace `RGFW_window_checkEvents` with `RGFW_window_pollEvents`
+- change typedef void (* RGFW_keyfunc)(RGFW_window* win, u8 key, u8 keyChar, RGFW_keymod keyMod, RGFW_bool pressed); to typedef void (* RGFW_keyfunc)(RGFW_window* win, u8 key, u8 keyChar, RGFW_keymod keyMod, RGFW_bool repeat, RGFW_bool pressed);
+- rework OpenGL format attrib array creation to use a struct
+- make it so `gl.h` isn't included in RGFW, meaning you have to include it on your own
+- rename `RGFW_window_mouseHold` -> `RGFW_window_holdMouse`, `RGFW_window_mouseUnhold` -> `RGFW_window_unholdMouse`
+- rename `RGFW_getGlobalMousePoint` -> RGFW_getMousePoint`
+- rename `RGFW_window_mouseHidden` -> `RGFW_window_isMouseHidden
+- remove `RGFW_windowNoInitAPI` with `RGFW_windowOpenGL` and `RGFW_windowEGL` to create an OpenGL or EGL window respectively.
+- remove `RGFW_windowOpenGLSoftware` in favor of an opengl context flag
+- cut `RGFW_getScreenSize` in favor of fetching the window or primary monitor
+- replace `RGFW_setHint`/RGFW_glHint` with single struct `RGFW_glHints` used in `createContext` EGL/OpenGL functions
+- rename examples to be more clear
+- rename `drag.droppedFiles` to `drag.files` and `drag.droppedFilesCount` to `drag.count`
+- rename+change behavior for keyboard and mouse events (pressed, released, down)
+- remove `RGFW_windowCocoaCHDirToRes` flag in favor of `RGFW_moveToMacOSResourceDir` function
+- remove internal OS Mesa support
+- remove RGFW_BUFFER/window.buffer and add `RGFW_window_initBufferPtr`,  `RGFW_window_copyBuffer` and `RGFW_window_freeBuffer`
+- cut gamepad support and add `minigamepad.h` to the gamepad example
+- add `RGFW_window_isKey[X]` and `RGFW_windowIsMouse[X]`, and remove the `RGFW_window` argument from the original functions
+- add `RGFW_windowUseEGL` flag for choosing to use EGL
+- make sure ALL OpenGL functions have _OpenGL at the end of them
+
+Major Changes:
+------------
+- fix support for C++, Objective-C/C++, Zig
+- Allow the `RGFW_window` and `RGFW_info` structs to be obfuscated
+- add functions for interacting with  the `RGFW_window` struct functionality
+- add win->exitKey to control which key is checked by `RGFW_window_shouldClose`
+- fix OSX deprecations
+- redesign RGFW state functions and add more state checking functions
+- replace the CVDisplayLink fallback with IOKit (macOS 15.4 deprecation)
+- move `RGFW_createWindowPtr` and `RGFW_freeWindowPtr` to the global API so that way behavior is properly standardized
+- move keyboard map into private api as a global (helpful for a public API c89 and bindings)
+- implement more missing features from the wayland backend (@uni-dos)
+- add internal API section in header
+- add `RGFW_gfxContextType` and `RGFW_window_src.gfxType` to identify what type of context we're using and if the context was allocated by RGFW.
+
+New Features:
+-------
+- add `RGFW_window_getEnabledEvents`,  `RGFW_window_setDisabledEvents` and `RGFW_window_setDisabledEvents`
+- add RGFW_extensionSupported
+- add `RGFW_enter`, `RGFW_printScreen`, `RGFW_F13` - `RGFW_F25`, `RGFW_kpEqual`,`RGFW_menu`, `RGFW_word1`, `RGFW_world2` and `RGFW_pause` keycodes
+- make in header documentation better and more descriptive
+- `RGFW_EGL` can be used along side native `RGFW_OPENGL`
+- add RGFW_window_isHoldingMouse
+- add support for native GLES support (GLX, WGL)
+- added documentation for each RGFW_glHints value including their default values.
+- new function: RGFW_getGLHint.
+- make event queue use a circular buffer (@kjohns19)
+
+Bug Fixes:
+-----------
+- add` RGFW_setGlobalHints_OpenGL ` and `RGFW_getGlobalHints_OpenGL`
+- add `RGFW_resetGlobalHints_OpenGL`
+- fix set max/min window size (X11)
+- make sure mouse is regrabbed on refocus
+- try to fix black flashing issue, zero out XSetWindowAttributes object
+- fix msvc warnings (wchar, explicitly request an "A" function)
+- fix XRandr memory leak
+- remove WS_THICKFRAME flag (winapi)
+- fix wayland missing destructors
+- fix usage of libc functions without RGFW_macro
+- fix wayland compile errors
+- fix ARM errors on Windows
+- fix wayland object leaks
+- fixed a bug with RGFW_BUFFER_ALLOC in the MacOS version of RGFW_window_initBufferPtr.
+- fixed a bug in 'RGFW_window_initBufferSize'.
+- fixed a bug in RGFW_GL_HINTS with how the RGFW_glStencil and RGFW_glSamples values were zero instead of their default RGFW values.
+- fixed indenting in RGFW_initFormatAttribs.
+- fix drag and drop and image copy bug
+- fix inconsistent mouse function naming
+- fix EGL and OpenGL extension checking
+- fix OpenGL mismatches
+- all bug fixes listed under Major Changes (e.g., XRandr memory leak, ARM errors, etc.)
+- replace incorrect usage of `RGFW_MEMCPY` with `RGFW_STRNCPY`
+- have x11 resize events check an internal rect (fixes ignored resize event bug)
+- Fix keycode for Right Super key on Linux
+- fix issues with -Werror=stringop-truncation and alignment
+- fix xdnd ghost bug
+- remove X11 fallbacks from the wayland backend (in a wayland environment)
+- make sure RGFW falls back to X11 if a wayland environment is not detected
+- propers errors in X11, Wayland and Windows versions of RGFW_window_initBufferPtr
+- don't use xdg-decorations if it's not supported
+- fix event queue to handle circular buffering correctly
+- fixed Wayland resizing behavior
+
+Other / Miscellaneous:
+-------
+- (X11) merge createContxt_OpenGL and createVisual_OpenGL
+- add RGFW_bool RGFW_window_getDataDrag(RGFW_window* win, i32* x, i32* y)  / RGFW_bool RGFW_window_isDataDragging(RGFW_window* win)
+- add RGFW_bool RGFW_window_getDataDrop(RGFW_window* win, const char*** files, size_t* count) / RGFW_bool RGFW_window_didDataDrop(RGFW_window* win)
+- add `RGFW_getMouseScroll` function
+- add RGFW_mouseScroll event
+- add `RGFW_getMouseVector`
+- remove `RGFW_NO_API` because it's superfluous
+- general improvements, API consistency, internal refactoring, documentation updates, and backend reworks.
+- includes reworked OpenGL/EGL context management, Wayland/X11 improvements, RGFW_image support, event queue refactoring, and cleanup of deprecated or confusing APIs.
+- (Wayland) monitor support (uni-dos)
+- (Wayland) mouse icon support (uni-dos)
+- (Wayland) raw mouse movement support (@uni-dos)
+- (Wayland) window icon support (@uni-dos)
+- (Wayland) allow wayland windows to know which monitor the window is on. (@uni-dos)
+- (Wayland) For pointer and keyboard use the passed in rgfw_info and not the global current. (@uni-dos)
+- (Wayland) reduce the number of calls to create and configure a surface as some functions called the same code. (@uni-dos)
+- (Wayland) rework poll event (@uni-dos)
+- (Wayland) implement set border (@uni-dos)
+- remove `basic/basic`, split it into `standard-mouse-icons/icons`, `gl11/gl11` `custom_alloc/custom_alloc`
+- remove `icons/icons`, split into `mouse-icons/icons` and `window-icons-icons`
+- rename `events/events` to `event_queue/event_queue`
+- add `void RGFW_window_setLayer_OSX(RGFW_window* win, void* layer);`
+- add `void* RGFW_window_getView_OSX(RGFW_window* win);`
+- add `void* RGFW_window_getWindow_OSX(RGFW_window* win);`
+- add `void* RGFW_window_getHWND(RGFW_window* win);`
+- add `void* RGFW_window_getHDC(RGFW_window* win);`
+- add `u64 RGFW_window_getWindow_X11(RGFW_window* win);`
+- add `struct wl_surface* RGFW_window_getWindow_Wayland(RGFW_window* win);`
+- add RGFW_MEMSET
+- if `RGFW_EXPORT` or `RGFW_IMPORT` is defined, default to a blank RGFWDEF if RGFWDEF is not set
+- some of the RGFW_sendDebugInfo error messages have had their first letter capitalized as well have been made to end with a punctuation dot.
+- update RGFW website
+- added an assertion for RGFW_setGLHint.
+- reset keypress data on refocus
+- handle window resizing (wayland)
+- add RGFW_PRINTF and RGFW_SNPRINTF
+- added a generic error code RGFW_errNoMem
+- initialize glstencil and glsamples to 0
+- add EGL example
+- add _EGL functions for using EGL (e.g. `RGFW_window_swapBuffers_EGL`)
+- RGFW_window_swapBuffers-> RGFW_window_swapBuffers_OpenGL
+- add `RGFW_window_getOSXView`
+- add `RGFW_glContext`, return `RGFW_glContext*` if the user chooses to manually create a context
+- add `RGFW_glShareWithCurrentContext` OpenGL hint for context sharing
+- add `RGFW_WEBGPU` for Linux, MacOS, Windows AND Web
+- add `RGFW_eventFlag`, an enum of flags for all the RGFW events
+- add `RGFW_window_setEnabledEvents` / `RGFW_window._enabledEvents` to set what events you want
+- update backends to use `RGFW_eventFlag` to check if an internal event should be processing it before processing it
+- add `RGFW_window_pollEvents`, cycles through ALL of the events WITHOUT STOPPING
+- add RGFW_window_checkQueuedEvent
+- add RGFW_window_getFlags
+- add `RGFW_windowClosePtr` for close the window without attempting to free the function pointer (rather than RGFW attempting to keep track of who owns the RGFW_window data)
+- add `RGFW_surface_freePtr`
+- add get/set functions for the few elements of RGFW_window, (userPtr, rect and exitKey)
+- add `RGFW_window_createContextPtr_OpenGL`  / `RGFW_window_deleteContextPtr_OpenGL` for creating a context with a pointer
+- add `RGFW_eglContext`
+- add `RGFW_formatARGB8` and `RGFW_formatRGBA8`
+- add functions to fetch source API data
+- add state-checking example
+- make `RGFW_image_copy` a public function
+- add `RGFW_glHintsCount` as a proper limit
+- add OPTIONAL advanced `RGFW_init` functions and give the user more OPTIONAL control of global vars
+- handle X11 errors manually (with a callback)
+- Added prefix to wayland functions
+- use `XRRConfigCurrentRate` to get the refresh rate rather than using math
+- improved internal event queue system
+- RGFW_glFinalHint -> RGFW_glHintsCount.
+- RGFW_glHintsCount is now the actual maximum count of accepted OpenGL hints, not just a static 32.
+- ``RGFW_setGLHint`/`RGFW_getGLHint`` -> `RGFW_setHint_OpenGL` `RGFW_getHint_OpenGL`
+- link EGL dynamically and fallback to native OpenGL if it fails to load
+- make `RGFW_window_src.ctx`  union, `RGFW_gfxContext` of `RGFW_glContext*` and `RGFW_eglContext` so that way it can point to either context (but not both)
+- refactor wayland+x11 backend to use function points (when wayland and x11 are used toghther)
+- add internal API function `RGFW_createWindowPlatform` and `RGFW_window_closePlatform`
+- move `createContext` to the global createWindow function
+- define keycodes per platform instead of having 1 generic method
+- simplified RGFW_BOOL logic
+
+-----------------------------------------------
+
+Release:    RGFW 1.7 (May 6, 2025)
+-----------------------------------------------
+This release focuses on improving bug fixes and supporting more edge-cases. It also continues to work towards feature parity with GLFW.
+-----------------------------------------------
+
+breaking changes:
+- Rename `RGFW_window_checkFPS` to `RGFW_checkFPS`
+- Change `RGFW_window_setShouldClose(RGFW_window)` to `RGFW_window_setShouldClose(RGFW_window, RGFW_BOOL)`
+- Rename `RGFW_setMouseNotifyCallBack` → `RGFW_setMouseNotifyCallback`
+- Rename `windowResizeCallback` → `windowResizedCallback`
+- Rename `windowMoveCallback` → `windowMovedCallback`
+- Change return type of `RGFW_getProcAddress` to `RGFW_proc`
+- `event.inFocus` removed — use `RGFW_window_isInFocus()` instead
+
+-----------------------------------------------
+
+major changes:
+- **Event Queue Rewrite**
+  - Replace internal event passing system (WASM, WinAPI, macOS) with `RGFW_eventQueuePush` / `RGFW_eventQueuePop`
+- **Platform-Independent Timing**
+  - `RGFW_getTime` and `RGFW_getTimeNS` now platform-independent
+  - Add `RGFW_setTime` (called with `0` at window init)
+- **New OpenGL and Buffer Management**
+  - Add `RGFW_window_swapBuffers_software` and `RGFW_window_swapBuffers_OpenGL`
+  - Add `RGFW_window_initOpenGL` and `RGFW_window_freeOpenGL`
+  - Add `RGFW_proc` typedef and update `RGFW_getProcAddress`
+  - Default multisampling is now 0 (more consistent with GLFW)
+- **Improved Software Rendering Support**
+  - Better macOS and wasm software rendering
+  - Use direct software rendering in wasm (no OpenGL required)
+- **Flags and Focus Enhancements**
+  - Add `RGFW_windowFreeOnClose`, `RGFW_windowFocusOnShow`
+  - Add `RGFW_windowFocus` and `RGFW_windowFocus` flag
+- **New Events**
+  - `RGFW_windowMaximized`
+  - `RGFW_windowMinimized`
+  - `RGFW_windowRestored`
+- **Cross-Platform Improvements**
+  - Add `RGFW_init` and `RGFW_deinit`
+  - Make `CLOCK_MONOTONIC` default where supported
+  - `BeginPaint`/`EndPaint` now called properly (Windows)
+  - Fix client area scaling issues (Windows)
+- **Monitor and Window Enhancements**
+  - `RGFW_getMonitors` now takes a `size_t* len` argument
+  - Better monitor resolution detection
+  - Fix X11 clipboard and waitEvent bugs
+  - Add `RGFW_ADVANCED_SMOOTH_RESIZE` (WinAPI, X11)
+
+-----------------------------------------------
+
+all changes:
+
+fixes:
+- Fix `RGFW_window_setFlags` overwrite bugs
+- Fix C++ compilation issues
+- Fix bugs with Unix timers and macOS warnings
+- Fix X11 and Cocoa waitEvent behavior
+- Fix OpenGL fallback and function loading (GLX, EGL, WGL)
+- Fix software rendering support (macOS, OSMesa, wasm)
+- Fix key input for non-latin and non-evdev X11 users
+- Fix monitor resolution detection
+- Fix gear and multi-window examples
+- Fix icons and transparency (macOS, Windows)
+- Fix memory alignment and window flags initialization
+- Ensure `BeginPaint` / `EndPaint` used correctly (Windows)
+
+new features:
+- Add `RGFW_eventQueuePush` / `RGFW_eventQueuePop`
+- Add `RGFW_windowFreeOnClose`
+- Add `RGFW_windowFocusOnShow`
+- Add `RGFW_window_isInFocus`
+- Add `RGFW_windowFocus` flag
+- Add `RGFW_windowMaximized`, `RGFW_windowMinimized`, `RGFW_windowRestored` events
+- Add `RGFW_ATOF` macro
+- Add `RGFW_proc` and update function loading
+- Add `RGFW_window_swapBuffers_software`, `RGFW_window_swapBuffers_OpenGL`
+- Add `RGFW_init`, `RGFW_deinit`
+- Add premake build file
+- Add `examples/gears/gears`, `examples/multi-window/multi-window`
+- Add `RGFW_BUFFER_BGR`, rename `RGFW_X11_DONT_CONVERT_BGR`
+- Add fallback for `glXCreateContextAttribsARB`
+- Add swapInterval to WGL loading
+
+miscellaneous:
+- Only allow transparency if `RGFW_windowTransparent` is enabled
+- Make depth default to 24 if transparency is off
+- Use `timeEndPeriod` for better Windows timing
+- Default buffer size to window size if not resizable
+- Refactor default bool types (`RGFW_INT_DEFINED`, `RGFW_BOOL_DEFINED`)
+- (MSVC) Avoid linking `opengl32.dll` unless `RGFW_OPENGL` is used
+- Simplify EGL context creation
+- Update OpenGL context fallback for Nvidia/GLX
+- Fix flipped image in OSMesa (wasm)
+
+
+-----------------------------------------------
+
+compatibility:
+- Tested with Zig
+- Improved MSVC, macOS, wasm, X11, and EGL/OSMesa support
+
+-----------------------------------------------
+
+notes:
+This version continues the work from 1.6 to refine the API while introducing more robust internal systems for events, rendering, and timing.
+
+Release:    RGFW 1.6 (Feb 25, 2025)
+-----------------------------------------------
+This release has been focused on ensuring feature parity with GLFW, reviewing included features and fixing bugs.
+
+breaking changes:
 - Replace `RGFW_window_setBufferPtr` and `RGFW_setBufferSize` with `RGFW_window_initBuffer`, `RGFW_window_initBufferSize` and `RGFW_window_initBufferPtr`
     Also forces the user to run `RGFW_window_initBuffer` to allocate a buffer
-- Get rid of RGFW_allocator, most of the memory that needs to be allocated is optional and is allocated on init anyway.
-- fix xDND data restarts bug 
-- print errors in writeclipboard (X11)
-- fix macOS titlebar api (borderless window)
-- update Vulkan example (fix crashes with certain drivers, have triangle follow mouse)
+- add `vector` for raw mouse data (so `point` can be used to get the regular mouse point)
+- RGFW_setGLHint and RGFW_glHints enum
+- change RGFW_window_fullscreen to  RGFW_window_setFullscreen
+- make RGFW_window_setFullscreen use exclusive fullscreen
+- limit directX support to RGFW_window_createDXSwapChain, most of it should/can be handled by the user
+- do not close the window until the (library) user closes it
+- add RGFW_monitorMode, move monitor.rect to mode.area and x, y to monitor
+- RGFW stalls on RGFW_quit
+
+major changes:
+- RGFW_monitorMode, allows gives the user more control the monitor's mode (size, refreshRate, RGB)
+- lots of bug fixes
+- more windowing functions and checking functions (floating, focus, aspectRatio, etc)
+- RGFW_glHints and more OpenGL hint options (RGB, depth, robustness, release behavior, etc)
+- more examples
+
+all changes:
+fixes:
+- fix wasm key event bug (key release events not being processed)
+- fix xDND data restarts bug
 - rewrite writeclipboard, ensure the selection is properly being handled and the clipboard is properly being saved after the window is closed
-- add icon example
 - review winapi window_setIcon (fixes HICON persistance issue)
-- remove RGFW_mouseNone (fixes overflow bug, RGFW_mouseNone isn't used anyway)
-- expose RGFW_moveToMacOSResourceDir to the public API
+- make sure RGFW_mousePosCallback is called even for raw input events (winapi)
+- handle `WM_SYSKEYDOWN` and `WM_SYSKEYUP` events (winapi)
+- skip x11 mouse button events if the mouse button > 5
+- framework CoreVideo is needed to get the monitor's refresh rate (macOS)
+- move WM_PAINT to WndProc callback
+- ensure setFlag won't cause bugs when it's used to create a window
+- update Vulkan example (fix crashes with certain drivers, have triangle follow mouse)
+- ensure UTF8 support (winapi)
+- make RGFW_window_setFullscreen use exclusive fullscreen
+
+new features:
+- add icon example
 - add `RGFW_window_center`
 - add `RGFW_window_borderless`, `RGFW_window_allowsDND` and `RGFW_window_mouseHidden` for checking for args
 - add flags example
 - fix `RGFW_window_setMaxSize` / `RGFW_window_setMinSize` winapi, use `SetPropA` `GetPropA` to get the window in `WndProc`
 - make RGFW_window_isMaximized actually maximize the window width the API
 - fix RGFW_window_setBorder not working after window creation (X11)
-- change b8/b32 to single changeable bool type `RGFW_bool`, add `RGFW_BOOL` macro for forcing an int to be bool
-- add `CONVENTIONS.md`
 - fix window flag bugs (macOS)
 - RGFW_window_maximize uses `toggleFullScreen` if the window has no border (macOS)
-- skip x11 mouse button events if the mouse button > 5
-- fix RGFW_window_eventWait, make sure RGFW_eventWaitNext is converted if it needs to be, ensure the correct time is used, (winapi, cocoa), make waitMS unsigned
 - add support for extra mouse buttons RGFW_mouseMisc1 - RGFW_mouseMisc5
 - separate maximize and fullscreen functions
 - add RGFW_window_setAspectRatio
-- add RGFW_window_scaleToMonitor AND RGFW_monitor_scale
-- add monitor/monitor.c example to show monitor scaling.
-- fix issues with examples compiling (macOS, wasm, X11)
-- remove microui_demo on wasm site
-- make the default bool type u8
-- make sure RGFW_mousePosCallback is called even for raw input events (winapi)
-- add `vector` for raw mouse data (so `point` can be used to get the regular mouse point)
-- replace API calls in RGFW_window_getMousePoint with `win->_lastMousePoint`
-- handle `WM_SYSKEYDOWN` and `WM_SYSKEYUP` events (winapi)
-- add RGFW_scrollLock keycode and RGFW_modScrollLock mod key
-- change RGFW_window_fullscreen to  RGFW_window_setFullscreen
-- make RGFW_window_setFullscreen use exclusive fullscreen
-- add RGFW_window_isFullscreen
-- add refreshRate to RGFW_monitor_scale
-- limit directX support to RGFW_window_createDXSwapChain, most of it should/can be handled by the user
-- Add refreshRate to RGFW_monitor
-- do not close the window until the user closes it
 - add `RGFW_window_focus` and `RGFW_window_raise`
 - add `RGFW_window_isFloating`and `RGFW_window_setFloating`
 - add `RGFW_getCurrent_OpenGL`
 - add `RGFW_setXInstName`
 - add `RGFW_window_setOpacity`
 - add `RGFW_getTimerFreq` and `RGFW_getTimerValue`
-- framework CoreVideo is needed to get the monitor's refresh rate (macOS)
+- add RGFW_window_scaleToMonitor AND RGFW_monitor_requestMode
+- add monitor/monitor.c example to show monitor scaling.
 - add RGFW_window_setFlags
 - add RGFW_windowFloating flag
+- add RGFW_COCOA_GRAPHICS_SWITCHING option
+- add RGFW_setGLRGBA, RGFW_setGLAccumRGBA RGFW_setGLSRGB, RGFW_setGLRobustness, RGFW_setGLDebug, RGFW_setGLNoError
+- add RGFW_setGLReleaseBehavior and RGFW_glRelease enum
+- new opengl hint options:
+    RGFW_glRed, RGFW_glGreen, RGFW_glBlue, RGFW_glAlpha
+    RGFW_glDepth,
+	RGFW_glAccumRed, RGFW_glAccumGreen, RGFW_glAccumBlue, RGFW_glAccumAlpha
+	RGFW_glSRGB
+	RGFW_glRobustness
+	RGFW_glDebug
+	RGFW_glNoError
+	RGFW_glReleaseBehavior
+- add RGFW_scrollLock keycode and RGFW_modScrollLock mod key
+- add `RGFW_monitorModeCompare`
+- Add refreshRate to RGFW_monitor
+- allow seticon to be undone
+- add `RGFW_window_setIconEx` (allows you to set titleBar icon, window icon or both)
+- add mode.red, mode.green, mode.blue
+- add smooth-resize example
+- Replace `RGFW_window_setBufferPtr` and `RGFW_setBufferSize` with `RGFW_window_initBuffer`, `RGFW_window_initBufferSize` and `RGFW_window_initBufferPtr`
+    Also forces the user to run `RGFW_window_initBuffer` to allocate a buffer
+- add `vector` for raw mouse data (so `point` can be used to get the regular mouse point)
+- RGFW_setGLHint and RGFW_glHints enum
+- add RGFW_monitorMode, move monitor.rect to mode.area and x, y to monitor
+
+miscellaneous changes:
+- Get rid of `RGFW_ALLOC_DROPFILES` (it's not actually useful)
+- Get rid of RGFW_allocator, most of the memory that needs to be allocated is optional and is allocated on init anyway.
+- print errors in writeclipboard (X11)
+- fix macOS titlebar api (borderless window)
+- remove RGFW_mouseNone (fixes overflow bug, RGFW_mouseNone isn't used anyway)
+- expose RGFW_moveToMacOSResourceDir to the public API
+- change b8/b32 to single changeable bool type `RGFW_bool`, add `RGFW_BOOL` macro for forcing an int to be bool
+- add `CONVENTIONS.md`
+- fix RGFW_window_eventWait, make sure RGFW_eventWaitNext is converted if it needs to be, ensure the correct time is used, (winapi, cocoa), make waitMS unsigned
+- fix issues with examples compiling (macOS, wasm, X11)
+- remove microui_demo on wasm site
+- make the default bool type u8
+- replace API calls in RGFW_window_getMousePoint with `win->_lastMousePoint`
+- ensure monitor functions can be used prior to window creation
+- change RGFW_window_fullscreen to  RGFW_window_setFullscreen
+- limit directX support to RGFW_window_createDXSwapChain, most of it should/can be handled by the user
+- do not close the window until the (library) user closes it
+- RGFW stalls on RGFW_quit
 
 Release:    RGFW 1.5 (Jan 14, 2024)
 -----------------------------------------------
 This may not include all of the changes or breaking changes made.
-This is because 1.5 is the first release and I started taking releases and release notes more seriously. 
+This is because 1.5 is the first release and I started taking releases and release notes more seriously.
 
 In later commits, the CHANGELOG will be updated while the release is being worked on.
 1.5 also has many breaking changes. These are essential changes for API consistency and to expose functionality better. Later releases will aim to have fewer breaking commits. I wanted to get as many of these changes out of the way while the project is still relatively new.
@@ -83,8 +454,8 @@ breaking changes:
     - make enum naming more consistent, make window args enums
         RGFW_Key -> RGFW_key
         RGFW_Control -> RGFW_control (for example)
-        
-        RGFW_(ARG) -> RGFW_window(Arg) 
+
+        RGFW_(ARG) -> RGFW_window(Arg)
         RGFW_CENTER -> RGFW_windowCenter
     - RGFW_window_setMouse -> RGFW_loadMouse, RGFW_window_setMouse, RGFW_freeMouse
 
@@ -92,13 +463,13 @@ breaking changes:
 all changes:
 
 new features:
-- RGFW_setClassName, allows program class (grouping) to be set 
+- RGFW_setClassName, allows program class (grouping) to be set
 - start of MacOS EGL support
 - add support for loading a icon from a .rc file
 - add RGFW_allocator for runtime changes to allocator
 - add RGFW_readClipboardPtr to load clipboard data into a buffer, or send a NULL buffer to get the size
 - RGFW_createWindowPtr to create a window without allocating a window struct
-- add gamepad support for macOS (IOKit) 
+- add gamepad support for macOS (IOKit)
 - Add XDL.h to this repo for optionally  dynamically linking X11
 - autofree clipboard (no need to free it yourself)
 - RGFW_window_setBufferPtr to set win->buffer to your own pointer
@@ -108,11 +479,11 @@ new features:
     - Fallback to X when wayland compositor is not found (eg. when using a X11 server)
     - Allow the user to switch to wayland/X during runtime (you have to compile with Wayand support (RGFW_WAYLAND))
 bugs:
-- Fix GLX runtime errors for certain GPUs 
+- Fix GLX runtime errors for certain GPUs
 - Fix C++ support, mostly fixes warnings and errors
 - fix ctypes, drop support for non stdint ctypes (MSVC)
 - fix RGFW_window_resize lock (when RGFW_noResize is enabled)
-- fix xDND crash 
+- fix xDND crash
 - fix Multi-window bugs (macOS)
 - fix event misses when unknown event is sent
 - fix scale/center order
@@ -120,7 +491,7 @@ bugs:
 - allow for less linking to be required (eg. -lopengl32 -lwimm, optional `RGFW_USE_XDL`)
 reviews/rewrites
 - Wayland rewrite
-    - integrate wayland with X code, allow for callbacks 
+    - integrate wayland with X code, allow for callbacks
 - monitor review
     - SetProcessDPIAware, effective DPI
     - fix scaling units and math
@@ -149,20 +520,20 @@ reviews/rewrites
     - get rid of CoreVideo dependency
     - remove internal dependency on math.h
     - allow for use of standard library to be limited
-- make enum naming more consistent, make window args enums, 
+- make enum naming more consistent, make window args enums,
 - rewrite keymods/ledState -> modState (Control, Shift, numlock, capslock, alt)
 - Update UTF8 support
-- update wayland support 
+- update wayland support
 new examples:
 - DOOM example on website
 - MicroUI example
 - metal example
 - fix vulkan example
 - add OSMesa example
-- Add minimal linking 
+- Add minimal linking
 - Add custom backend example
 - Add gamepad example
-- Add no standard library example 
+- Add no standard library example
 
 Current Release:    RGFW 1.06 (Aug 14, 2024)
 -----------------------------------------------
@@ -216,8 +587,8 @@ breaking changes:
     - make enum naming more consistent, make window args enums
         RGFW_Key -> RGFW_key
         RGFW_Control -> RGFW_control (for example)
-        
-        RGFW_(ARG) -> RGFW_window(Arg) 
+
+        RGFW_(ARG) -> RGFW_window(Arg)
         RGFW_CENTER -> RGFW_windowCenter
     - RGFW_window_setMouse -> RGFW_loadMouse, RGFW_window_setMouse, RGFW_freeMouse
 
@@ -225,23 +596,23 @@ breaking changes:
 all changes:
 
 new features:
-- RGFW_setClassName, allows program class (grouping) to be set 
+- RGFW_setClassName, allows program class (grouping) to be set
 - start of MacOS EGL support
 - add support for loading a icon from a .rc file
 - add RGFW_allocator for runtime changes to allocator
 - add RGFW_readClipboardPtr to load clipboard data into a buffer, or send a NULL buffer to get the size
 - RGFW_createWindowPtr to create a window without allocating a window struct
-- add gamepad support for macOS (IOKit) 
+- add gamepad support for macOS (IOKit)
 - Add XDL.h to this repo for optionally  dynamically linking X11
 - autofree clipboard (no need to free it yourself)
 - RGFW_window_setBufferPtr to set win->buffer to your own pointer
 - RGFW_window_setMouse -> RGFW_loadMouse, RGFW_window_setMouse, RGFW_freeMouse
 bugs:
-- Fix GLX runtime errors for certain GPUs 
+- Fix GLX runtime errors for certain GPUs
 - Fix C++ support, mostly fixes warnings and errors
 - fix ctypes, drop support for non stdint ctypes (MSVC)
 - fix RGFW_window_resize lock (when RGFW_noResize is enabled)
-- fix xDND crash 
+- fix xDND crash
 - fix Multi-window bugs (macOS)
 - fix event misses when unknown event is sent
 - fix scale/center order
@@ -276,20 +647,20 @@ reviews/rewrites
     - get rid of CoreVideo dependency
     - remove internal dependency on math.h
     - allow for use of standard library to be limited
-- make enum naming more consistent, make window args enums, 
+- make enum naming more consistent, make window args enums,
 - rewrite keymods/ledState -> modState (Control, Shift, numlock, capslock, alt)
 - Update UTF8 support
-- update wayland support 
+- update wayland support
 new examples:
 - DOOM example on website
 - MicroUI example
 - metal example
 - fix vulkan example
 - add OSMesa example
-- Add minimal linking 
+- Add minimal linking
 - Add custom backend example
 - Add gamepad example
-- Add no standard library example 
+- Add no standard library example
 - add RGFW_VK_SURFACE and RGFW_window_createVKSurface directly to RGFW
 
 Current Release:    RGFW 1.06 (Aug 14, 2024)

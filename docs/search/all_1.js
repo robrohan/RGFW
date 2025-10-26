@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['axis_0',['axis',['../structRGFW__event.html#a2dfc887b0bdf5d00e0fa20fe6fd1571e',1,'RGFW_event']]],
-  ['axisescount_1',['axisesCount',['../structRGFW__event.html#a461af45aa112cd066e782d4320e8554b',1,'RGFW_event']]]
+  ['callbacks_0',['Callbacks',['../group__Callbacks.html',1,'']]],
+  ['clipboard_1',['Clipboard',['../group__Clipboard.html',1,'']]],
+  ['common_2',['common',['../unionRGFW__event.html#a2cd9246cc6b350ba08e7f0edc1d556ed',1,'RGFW_event']]],
+  ['count_3',['count',['../structRGFW__dataDropEvent.html#ae817a75a323d802bd408fcae6cd92eea',1,'RGFW_dataDropEvent']]]
 ];

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['_5fflags_0',['_flags',['../structRGFW__window.html#a3619dc281010b57f0810987a3be8012e',1,'RGFW_window']]],
-  ['_5flastmousepoint_1',['_lastMousePoint',['../structRGFW__window.html#a1c2b434209d6e4241cc50911c7fafc4f',1,'RGFW_window']]],
-  ['_5foldrect_2',['_oldRect',['../structRGFW__window.html#a45eae99265e6e7134358650f37901d9d',1,'RGFW_window']]]
+  ['blue_0',['blue',['../structRGFW__monitorMode.html#a59c089b8e8fb6a5945cffbdda85d9e72',1,'RGFW_monitorMode']]],
+  ['button_1',['button',['../unionRGFW__event.html#ab0e757ad7fbe82deb6e50b46b290efc8',1,'RGFW_event']]]
 ];

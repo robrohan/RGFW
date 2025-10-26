@@ -1,0 +1,63 @@
+.TH "error" 3 "Sun Oct 26 2025" "RGFW" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+error \- handling
+.SH SYNOPSIS
+.br
+.PP
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBRGFWDEF\fP \fBRGFW_debugfunc\fP \fBRGFW_setDebugCallback\fP (\fBRGFW_debugfunc\fP func)"
+.br
+.RI "Sets the callback function to handle debug messages from RGFW\&. "
+.ti -1c
+.RI "\fBRGFWDEF\fP void \fBRGFW_sendDebugInfo\fP (RGFW_debugType type, RGFW_errorCode err, const char *msg)"
+.br
+.RI "Sends a debug message manually through the currently set debug callback\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.IP "\(bu" 2
+
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBRGFWDEF\fP void RGFW_sendDebugInfo (RGFW_debugType type, RGFW_errorCode err, const char * msg)"
+
+.PP
+Sends a debug message manually through the currently set debug callback\&. ! 
+.PP
+\fBParameters\fP
+.RS 4
+\fItype\fP The type of debug message being sent\&. 
+.br
+\fIerr\fP The associated error code\&. 
+.br
+\fImsg\fP The debug message text\&. 
+.RE
+.PP
+
+.SS "\fBRGFWDEF\fP \fBRGFW_debugfunc\fP RGFW_setDebugCallback (\fBRGFW_debugfunc\fP func)"
+
+.PP
+Sets the callback function to handle debug messages from RGFW\&. ! 
+.PP
+\fBParameters\fP
+.RS 4
+\fIfunc\fP The function pointer to be used as the debug callback\&. 
+.RE
+.PP
+\fBReturns\fP
+.RS 4
+The previously set debug callback function\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for RGFW from the source code\&.
